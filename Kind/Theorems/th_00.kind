@@ -1,65 +1,141 @@
-// Theorems involving
+// Theorems involving Natural numbers
 
-///Natural numbers
+// Não entendi
 Nat.divides(a: Nat, b: Nat): Type
   ?Nat.divides
 
 Nat.sub.succ_both(a: Nat, b: Nat): Nat.sub(Nat.succ(a), Nat.succ(b)) == Nat.sub(a, b)
-  ?Nat.sub.succ_both
+  case a {
+    zero: refl
+    succ: case b {
+      zero: refl
+      succ: refl
+    }!
+  }!
 
 Nat.sub.zero_left(a: Nat): Nat.sub(0, a) == 0
-  ?Nat.sub.zero_left
+  case a {
+    zero: refl
+    succ: refl
+  }!
 
+// Não consegui
 Nat.mod.mod_one_equals_zero(a: Nat): (a % 1) == 0
-  ?Nat.mod.mod_one_equals_zero
+  case a {
+    zero: refl
+    succ: 
+      let e = Nat.mod.mod_one_equals_zero(a.pred)
+      ?a-18
+  }!
 
 Nat.mod.zero_mod_equals_zero(a: Nat): (0 % Nat.succ(a)) == 0
-  ?Nat.mod.zero_mod_equals_zero
+  refl
 
 Nat.mod.go_self(a: Nat) (b: Nat): Nat.mod.go(a, a, Nat.succ(b)) == 0
-  ?Nat.mod.go_self
+  case a {
+    zero: refl
+    succ: Nat.mod.go_self(a.pred, Nat.succ(b))
+  }!
 
+// Nao consegui
 Nat.mod.go_mod_one_equals_zero(a: Nat): Nat.mod.go(a, 1, 0) == 0
-  ?Nat.mod.go_mod_one_equals_zero
+  case a {
+    zero: refl
+    succ: 
+      let e = Nat.mod.go_mod_one_equals_zero(a.pred)
+      ?a
+  }!
 
+// Não consegui
 Nat.mod.self(a: Nat): (Nat.succ(a) % Nat.succ(a)) == 0
-  ?Nat.mod.self
+  case a {
+    zero: refl
+    succ: 
+      ?a-
+  }!
+// Auxiliar pro acima
+Nat.div_mod.go.self(a: Nat): Nat.div_mod.go(a, 0, a) == Pair.new<Nat, Nat>(1, 0)
+  case a {
+    zero: ?b
+    succ: ?a
+  }!
 
 Nat.succ_inj(a: Nat, b: Nat, eq: Nat.succ(a) == Nat.succ(b)): a == b
-  ?Nat.succ_inj
+  apply(Nat.pred, eq)
 
 Nat.min.small_left(a: Nat, b: Nat): (Nat.min(a, b) <=? a) == true
-  ?Nat.min.small_left
+  case a {
+    zero: refl
+    succ: case b {
+      zero: refl
+      succ: Nat.min.small_left(a.pred, b.pred)
+    }!
+  }!
 
 Nat.min.small_right(a: Nat, b: Nat): (Nat.min(a, b) <=? b) == true
-  ?Nat.min.small_right
+  case a {
+    zero: refl
+    succ: case b {
+      zero: refl
+      succ: Nat.min.small_right(a.pred, b.pred)
+    }!
+  }!
 
 Nat.min.small(
   a: Nat
   b: Nat
 ): And<(Nat.min(a, b) <=? a) == true, (Nat.min(a, b) <=? b) == true>
-  ?Nat.min.small
+  {Nat.min.small_left(a,b), Nat.min.small_right(a,b)}
 
+// Essa estrategia depende do mod.self que não consegui
 Nat.gcd.self(a: Nat): Nat.gcd(a,a) == a
-  ?Nat.gcd.self
+  case a {
+    zero: refl
+    succ:
+      let e = Nat.gcd.self(a.pred)
+      let m1 = Nat.mod.self(a)
+      //let m2 = apply((m) Nat.gcd(m, a), m1)
+      ?a
+  }!
 
 Nat.gcd.succ(a: Nat)(b: Nat): Nat.gcd(Nat.succ(a),b) == Nat.gcd(Nat.mod(b, Nat.succ(a)), Nat.succ(a))
-  ?Nat.gcd.succ
+  refl
 
 Nat.gcd.zero_right(a: Nat): Nat.gcd(a,0) == a
-  ?Nat.gcd.zero_right
+  case a {
+    zero: refl
+    succ: refl
+  }!
 
 Nat.gcd.zero_left(a: Nat): Nat.gcd(0,a) == a
-  ?Nat.gcd.zero_left
+  refl
 
 Nat.lte.zero_right(n: Nat, Hyp: Nat.lte(n, 0) == true): n == 0
-  ?Nat.lte.zero_right
+  case n with Hyp {
+    zero: refl
+    succ: 
+      let contra = Bool.false_neq_true(Hyp)
+      Empty.absurd!(contra)
+  }!
 
 Nat.add.succ_right(a: Nat, b: Nat): (a + Nat.succ(b)) == Nat.succ(Nat.add(a,b))
-  ?Nat.add.succ_right
+  case a {
+    zero: refl
+    succ:
+      let p = Nat.add.succ_right(a.pred, b)
+      apply(Nat.succ, p)
+  }!
 
+// Como faz pra jogar fora o e0 em metade
 Nat.add.cancel_left(a: Nat, b: Nat, c: Nat, e0: (a + b) == a + c): b == c
-  ?Nat.add.cancel_left
+  case a with e0{
+    zero: e0
+    succ:
+      let e1 = apply(Nat.pred, e0)
+      //let p0 = Nat.add.cancel_left(a.pred, b, c)(e0)
+      //let p1 = apply(Nat.succ, p0)
+      e1
+  }!
 
 Nat.add.comm(a: Nat, b:Nat): (a + b) == (b + a)
   ?Nat.add.comm
@@ -111,3 +187,29 @@ Nat.mul.zero_left(a: Nat): (0 * a) == 0
 Nat.mul.assoc(a: Nat, b: Nat, c: Nat): (a * b * c) == (a * b) * c
   ?Nat.mul.assoc
 
+th_00:_
+  //Nat.sub.succ_both
+  //Nat.sub.zero_left
+
+  // porque fica travado?
+  //Nat.mod.mod_one_equals_zero
+
+  //Nat.mod.zero_mod_equals_zero
+  //Nat.mod.go_self
+  //Nat.mod.go_mod_one_equals_zero
+
+  // 0%0 crasha
+  //Nat.mod.self
+  //Nat.div_mod.go.self
+
+  //Nat.succ_inj
+  //Nat.min.small_left
+  //Nat.min.small_right
+  //Nat.min.small
+  //Nat.gcd.self
+  //Nat.gcd.succ
+  //Nat.gcd.zero_right
+  //Nat.gcd.zero_left
+  //Nat.lte.zero_right
+  //Nat.add.succ_right
+  Nat.add.cancel_left

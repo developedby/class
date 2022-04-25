@@ -1,0 +1,37 @@
+Nat.div_mod.go.self(a: Nat): Nat.div_mod.go(Nat.succ(a), 0, Nat.succ(a)) == {1, 0}
+  case a {
+    zero: refl
+    succ: 
+      let e = Nat.div_mod.go.self(a.pred)
+      ?a-34
+  }!
+
+Nat.lte.self(a: Nat): Nat.lte(a, a) == true
+  case a {
+    zero: refl
+    succ: Nat.lte.self(a.pred)
+  }!
+
+Nat.sub.self(a: Nat): (Nat.sub(a, a) =? 0) == true
+  case a {
+    zero: refl
+    succ: Nat.sub.self(a.pred)
+  }!
+
+Nat.lte.zero_lte_succ(a: Nat): (0 <=? Nat.succ(a)) == true
+  case a {
+    zero: refl
+    succ: refl
+  }!
+
+// Nat.div_mod.go(a+1, 0, a+1) == Nat.div_mod.go(a+1, 0+1, a-a) == Nat.div_mod.go(a+1, 1, 0) == (1, 0)
+// 1. Nat.lte.self garante que entra no case true
+// 2. Nat.sub.self garante que a-a == 0
+// 3. Nat.lte.zero_lte_succ garante que entra no case false
+
+
+test:_
+  //Nat.div_mod.go.self
+  //Nat.lte.self
+  //Nat.sub.self
+  Nat.lte.zero_lte_succ
