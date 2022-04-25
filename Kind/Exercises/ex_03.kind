@@ -7,58 +7,87 @@ type Nat {
 
 // Doubles a number
 dbl(a: Nat): Nat // double
-
-  ?b
+  case a {
+    zero: 0
+    succ: Nat.succ(Nat.succ(a.pred))
+  }
 
 // Addition
 add(a: Nat, b: Nat): Nat
-
-  ?a
+  case a {
+    zero: b
+    succ: add(a.pred, Nat.succ(b))
+  }
 
 // Multiplication
 mul(a: Nat, b: Nat): Nat
-  
-  ?m
+  case a {
+    zero: 0
+    succ: add(b, mul(a.pred, b))
+  }
 
 // Subtraction
 // 4 - 5 = 0
 // 5 - 4 = 1
 sub(a: Nat, b: Nat): Nat
-
-  ?s
+  case a {
+    zero: 0
+    succ: case b {
+      zero: a
+      succ: sub(a.pred, b.pred)
+    }
+  }
 
 // Factorial
 // 4! = 24
 fac(a: Nat): Nat 
-  
-  ?f
+  case a {
+    zero: 1
+    succ: mul(a, fac(a.pred))
+  }
 
 // Division
 // 1 / 2 = 0
 // x / 0 = 0
 // 5 / 2 = 2
 div(a: Nat, b: Nat): Nat // division
-  
-  ?d
+  case a {
+    zero: 0
+    succ: case b {
+      zero: 0
+      succ: if ltn(a, b) then 0 else Nat.succ(div(sub(a, b), b))
+    }
+  }
 
 // Equal
 eql(a: Nat, b: Nat): Bool // Given 2 numbers, it returns true if the 2 are the same and false if they are different.
-  
-  ?e 
+  case a b {
+    zero zero: true
+    zero succ: false
+    succ zero: false
+    succ succ: eql(a.pred, b.pred)
+  }
 
 // Do not use the "not" function to create the functions below
 
 // Greater than
-// 2 > 1 = True
-// 3 > 3 = False
-gtn(a: Nat, b: Nat): Bool // if A > B == True else false
-  
-  ?g
+// 2 > 1 = true
+// 3 > 3 = false
+gtn(a: Nat, b: Nat): Bool // if A > B == true else false
+  case a b {
+    zero zero: false
+    zero succ: false
+    succ zero: true
+    succ succ: eql(a.pred, b.pred)
+  }
 
 // Lower than
-// 1 < 2 = True
-// 3 < 3 = False
-ltn(a: Nat, b: Nat): Bool // if A > B == False else true 
-  
-  ?l
-
+// 1 < 2 = true
+// 3 < 3 = false
+ltn(a: Nat, b: Nat): Bool // if A < B == true else false
+  case a b {
+    zero zero: false
+    zero succ: true
+    succ zero: false
+    succ succ: eql(a.pred, b.pred)
+  }
