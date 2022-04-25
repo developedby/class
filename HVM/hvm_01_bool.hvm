@@ -16,15 +16,31 @@
 
 // Operação lógica de negação
 // (Not x)
+(Not True) = False
+(Not False) = True
 
 // Operação lógica de igualdade
 // (Equal x y)
+(Equal True True) = True
+(Equal False False) = True
+(Equal a b) = False
 
 // Operação lógica E
 // (And x y)
+(And True True) = True
+(And a b) = False
 
 // Operação lógica OU
 // (Or x y)
+(Or False False) = False
+(Or a b) = True
 
 // Operação lógica OU Exclusivo
 // (Xor x y)
+(Xor True  False) = True
+(Xor False True) = True
+(Xor a b) = False
+
+// If expression. expr ? a : b
+(If True a b) = a
+(If False a b) = b
