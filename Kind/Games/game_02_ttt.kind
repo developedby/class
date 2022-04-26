@@ -4,11 +4,23 @@ type TicTacToe.Piece {
   X
 }
 
+TicTacToe.Tile: Type
+  Maybe<TicTacToe.Piece>
+
+TicTacToe.Line: Type
+  List<TicTacToe.Tile>
+
+TicTacToe.Board: Type
+  List<TicTacToe.Line>
+
+TicTacToe.Coord: Type
+  Pair<Nat, Nat>
+
 // Game state
 type TicTacToe {
   new(
     turn: Nat
-    board: List<List<Maybe<TicTacToe.Piece>>>
+    board: TicTacToe.Board
   )
 }
 
@@ -26,13 +38,23 @@ type TicTacToe {
 // The initial board state
 // An empty board
 TicTacToe.init: TicTacToe
-  ?a
+  TicTacToe.new(
+    0,
+    [[none, none, none],
+     [none, none, none],
+     [none, none, none]]
+  )
 
 // Gets the state of a given position in the board
 // x = row
 // y = column
-TicTacToe.get(x: Nat, y: Nat, game: TicTacToe): Maybe<TicTacToe.Piece>
-  ?b
+TicTacToe.get(
+  coord: TicTacToe.Coord
+  game: TicTacToe
+): TicTacToe.Tile
+  open coord
+  open game
+  game.board[coord.fst][coord.snd] <> none
 
 // If possible, converts the user input to a coordinate {x, y}
 // A valid inputs is any pair of 2 numbers separated with a space:
@@ -41,34 +63,129 @@ TicTacToe.get(x: Nat, y: Nat, game: TicTacToe): Maybe<TicTacToe.Piece>
 // Invalid inputs:
 // "banana"
 // "   "
-TicTacToe.read(input: String): Maybe<Pair<Nat, Nat>>
-	?c
+TicTacToe.read(input: String): Maybe<TicTacToe.Coord>
+  let split_input = String.split(input, " ")
+  let nat_parser = Parser.run!(Parser.nat)
+  let maybe_nums = List.map!!(nat_parser, split_input)
+
+  let extract_nums = (mn: Maybe<Nat>) Maybe.extract.value!(mn, 0)
+  let nums = List.map!!(extract_nums, maybe_nums)
+  let x = nums[0] <> 0
+  let y = nums[1] <> 0
+  let coord = {x, y}
+
+  let parse_ok = List.all!(Maybe.is_some!, maybe_nums)
+  let len2 = List.length!(nums) =? 2
+  let valid_coord = TicTacToe.is_coord_valid(coord)
+
+  if parse_ok && len2 && valid_coord then
+    some(coord)
+  else
+    none
+
+TicTacToe.is_coord_valid(coord: TicTacToe.Coord): Bool
+  open coord
+  (coord.fst <=? 2) && (coord.fst <=? 2)
 
 // Checks if a movement is valid
 // A valid movement is any movement inside the 3x3 board if the tile is unnocupied
-TicTacToe.is_move_valid(coord: Pair<Nat, Nat>, game: TicTacToe): Bool
-	?d
+TicTacToe.is_move_valid(coord: TicTacToe.Coord, game: TicTacToe): Bool
+  let tile = TicTacToe.get(coord, game)
+  if TicTacToe.is_coord_valid(coord) then
+    case tile {
+      none: true
+      some: false
+    }
+  else
+    false
 
 // Who is the next one to play?
 TicTacToe.next_piece(game: TicTacToe): TicTacToe.Piece
-  ?e
-
+  open game
+  if Nat.mod(game.turn, 2) =? 0 then
+    TicTacToe.Piece.O
+  else
+    TicTacToe.Piece.X
 
 // From an input, adds X or O (decided from TicTacToe.next_piece) at given location and increments the turn
-TicTacToe.move(coord: Pair<Nat, Nat>, game: TicTacToe): TicTacToe
-  ?f
+TicTacToe.move(coord: TicTacToe.Coord, game: TicTacToe): TicTacToe
+  open coord
+  open game
+  let next_piece = TicTacToe.next_piece(game)
+  let game@board[coord.fst][coord.snd] <- some(next_piece)
+  let game@turn <~ Nat.succ
+  game
 
 // Checks if 2 pieces are equal
-TicTacToe.Piece.eql(a: Maybe<TicTacToe.Piece>, b: Maybe<TicTacToe.Piece>): Bool
-	?g
+TicTacToe.Piece.eql(a: TicTacToe.Tile, b: TicTacToe.Tile): Bool
+  case a b {
+    some some:
+      case a.value b.value {
+        X X:    true
+        O O:    true
+      } default false
+  } default false
 
 // Determines a winner if there is one
 TicTacToe.winner(game: TicTacToe): Maybe<TicTacToe.Piece>
-  ?h
+  open game
+  let b = game.board
+  let coords = [
+    // horizontal
+    [{0 0} {0 1} {0 2}]
+    [{1 0} {1 1} {1 2}]
+    [{2 0} {2 1} {2 2}]
+    // vertical
+    [{0 0} {1 0} {2 0}]
+    [{0 1} {1 1} {2 1}]
+    [{0 2} {1 2} {2 2}]
+    // diagonal
+    [{0 0} {1 1} {2 2}]
+    [{2 0} {1 1} {0 2}]
+  ]
+  let get_tile = (coord) TicTacToe.get(coord, game)
+  let coords_to_tiles = (coords) List.map!!(get_tile, coords)
+  let lines = List.map!!(coords_to_tiles, coords)
+  let winners = List.map!!(line_winner, lines)
+  let winner = get_fst_some!(winners)
+  winner
+
+line_winner(line: TicTacToe.Line): TicTacToe.Tile
+  case line {
+    nil : none
+    cons: line_winner.go(line, line.head)
+  }
+line_winner.go(line: TicTacToe.Line, cmp: TicTacToe.Tile): TicTacToe.Tile
+    case line {
+      nil : cmp
+      cons:
+        if TicTacToe.Piece.eql(cmp, line.head) then
+          line_winner.go(line.tail, cmp)
+        else
+          none
+    }
+
+// Returns the first value in a list of maybes, none if there is no value
+get_fst_some<A: Type>(m_as: List<Maybe<A>>): Maybe<A>
+  case m_as {
+    nil : none
+    cons:
+      case m_as.head {
+        none: get_fst_some!(m_as.tail)
+        some: m_as.head
+      }
+  }
 
 // Converts the piece into a text to be shown
 TicTacToe.Piece.show(a: Maybe<TicTacToe.Piece>): String
-  ?i
+  case a {
+    none: " "
+    some:
+      case a.value {
+        X: "X"
+        O: "O"
+      }
+  }
 
 // Shows the board
 // Example:
@@ -80,10 +197,22 @@ TicTacToe.Piece.show(a: Maybe<TicTacToe.Piece>): String
 //  X | O | X 
 //
 TicTacToe.show(game: TicTacToe): String
-  ?j
+  open game
 
+  let to_line_char_list = (line: TicTacToe.Line)
+    List.map!!(TicTacToe.Piece.show, line)
 
-Test: IO<Unit>
+  let show_line_inner = (line: TicTacToe.Line)
+    String.intercalate(" | ", to_line_char_list(line))
+
+  let show_line = (line: TicTacToe.Line)
+    " " | show_line_inner(line) | " "
+
+  let lines_str = List.map!!(show_line, game.board)
+  let board_str = String.intercalate("\n-----------\n", lines_str)
+  board_str
+
+game_02_ttt: IO<Unit>
   IO {
     // Prints the initial board
     let ttt = TicTacToe.init
