@@ -1,44 +1,103 @@
-// Basic exercises involving Lists
+// Advanced exercises involving recursion
 
-type List <A: Type> {
-  nil
-  cons(head: A, tail: List<A>)
+type Nat {
+  zero
+  succ(pred: Nat)
 }
 
-// Returns the list without the first element
-tail<A: Type>(xs: List<A>): List<A>
-  case xs {
-    nil : []
-    cons: xs.tail
+// Doubles a number
+dbl(a: Nat): Nat // double
+  dbl.go(a, Nat.zero)
+
+dbl.go(a: Nat, acc: Nat)
+  case a {
+    zero: acc
+    succ: dbl.go(a.pred, Nat.succ(Nat.succ(acc)))
   }
 
-// Returns the length of a list
-length<A: Type>(xs: List<A>): Nat
-  case xs {
-    nil : 0
-    cons: Nat.succ(length!(xs.tail))
+// Addition
+add(a: Nat, b: Nat): Nat
+  case a {
+    zero: b
+    succ: add(a.pred, Nat.succ(b))
   }
 
-// Concatenates two lists
-concat<A: Type>(xs: List<A>, ys: List<A>): List<A>
-  case xs {
-    nil : ys
-    cons: xs.head & concat!(xs.tail, ys)
+// Multiplication
+mul(a: Nat, b: Nat): Nat
+  mul.go(a, b, Nat.zero)
+
+mul.go(a: Nat, b: Nat, acc: Nat): Nat
+  case a {
+    zero: acc
+    succ: mul.go(a.pred, b, add(acc, b))
   }
 
-// Applies a function to all elements of a list
-map<A: Type, B: Type>(fn: A -> B, xs: List<A>): List<B>
-  case xs {
-    nil : []
-    cons: fn(xs.head) & map!!(fn, xs.tail)
+// Subtraction
+// 4 - 5 = 0
+// 5 - 4 = 1
+sub(a: Nat, b: Nat): Nat
+  case a {
+    zero: zero
+    succ: case b {
+      zero: a
+      succ: sub(a.pred, b.pred)
+    }
   }
 
-// Returns the same list, with the order reversed
-reverse<A: Type>(xs: List<A>): List<A>
-  reverse.go!([], xs)
+// Factorial
+// 4! = 24
+fac(a: Nat): Nat 
+  fac.go(a, Nat.succ(Nat.zero))
 
-reverse.go<A: Type>(new_list: List<A>, old_list: List<A>): List<A>
-  case old_list {
-    nil : new_list
-    cons: reverse.go!(old_list.head & new_list, old_list.tail)
+fac.go(a: Nat, acc: Nat): Nat
+  case a {
+    zero: acc
+    succ: fac.go(a.pred, mul(a, acc))
+  }
+
+// Division
+// 1 / 2 = 0
+// x / 0 = 0
+// 5 / 2 = 2
+div(a: Nat, b: Nat): Nat // division
+  div.go(a, b, Nat.zero)
+
+div.go(a: Nat, b: Nat, acc: Nat): Nat
+  case a b {
+    succ succ:
+      if gtn(a, b.pred) then  // Equivalent to >=
+        div.go(sub(a, b), b, add(acc, b))
+      else
+        acc
+  } default Nat.zero
+
+// Equal
+eql(a: Nat, b: Nat): Bool // Given 2 numbers, it returns true if the 2 are the same and false if they are different.
+  case a b {
+    zero zero: true
+    succ succ: eql(a.pred, b.pred)
+  } default false
+
+// Do not use the "not" function to create the functions below
+
+// Greater than
+// 2 > 1 = True
+// 3 > 3 = False
+gtn(a: Nat, b: Nat): Bool // if A > B then true else false
+  case a b {
+    zero zero: false
+    zero succ: false
+    succ zero: true
+    succ succ: gtn(a.pred, b.pred)
+  }
+
+// Lower than
+// 1 < 2 = True
+// 3 < 3 = False
+ltn(a: Nat, b: Nat): Bool // if A >= B then false else true 
+  case a b {
+    zero zero: false
+    zero succ: true
+    succ zero: false
+    succ succ: ltn(a.pred, b.pred)
   }
