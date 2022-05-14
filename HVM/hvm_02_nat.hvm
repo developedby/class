@@ -1,60 +1,83 @@
-// Considere a seguinte definição para números naturais:
+// Consider the following definition for natural numbers:
 //
-// Z:     O número zero
-// (S x): O sucessor de um número x
+// Z:     The number zero
+// (S x): The successor of a number x
 //
-// Ex.: O número 3 seria (S (S (S Z)))
+// Ex.: The number 3 would be (S (S (S Z)))
 //
-// Com essa definição em mente, faça os seguintes exercícios:
+// With that definition in mind, do the following exercises:
 
-// PS.: Lembre-se de novo que, se sua função tiver casos específicos,
-// você precisa escrever uma versão da função para cada um dos casos:
+// PS.: Remember again that, if your function has specific cases,
+// you need to write a version of the function for each case:
 //
-// (Func Z)     -> Irá rodar apenas para Zero
-// (Func (S n)) -> Irá rodar para qualquer número que não seja Zero
-//              -> Chamando a função desse jeito, você pode usar 'n' como variável
-// (Func x)     -> Irá rodar para qualquer número
+// (Func Z)     -> Will run only for Zero.
+// (Func (S n)) -> Will run for every number that is not Zero.
+//                 By calling the function in that way, you can use 'n' as variable.
+// (Func x)     -> Will run for any number.
 
-// Retorna o antecessor do número
+// Returns the predecessor of the number
 // (Pred x)
 (Pred Z) = Z
 (Pred (S n)) = n
 
-// Retorna o dobro do número
+// Returns the Double of the number
 // (Dobro x)
 (Dobro Z) = Z
 (Dobro (S n)) = (S (S (Dobro n)))
 
-// Retorna metade (arredondado pra baixo) do número
+// Returns the Half of the number and round it down (e.g.:"5/2 = 2") 
 // (Metade x)
 (Metade Z) = Z
 (Metade (S Z)) = Z
 (Metade (S (S n))) = (S (Metade n))
 
-// Retorna a adição de dois números
+// Returns the Sum of two numbers
 // (Add x y)
 (Add Z y) = y
 (Add (S x) y) = (Add x (S y))
 
-// Retorna a subtração de dois números (0 se seria negativo)
+// Returns the Subtraction of two numbers (0 if it would be negative)
 // (Sub x y)
 (Sub Z y) = Z
 (Sub x Z) = x
 (Sub (S x) (S y)) = (Sub x y)
 
-// Retorna a multiplicação de dois números
+// Returns the Multiplication two numbers
 // (Mul x y)
 (Mul Z y) = Z
 (Mul (S x) y) = (Add y (Mul x y))
 
-// Retorna o fatorial de um número
+// Returns the Factorial of the number
 // (Fat x)
 (Fat Z) = (S Z)
 (Fat (S x)) = (Mul (S x) (Fat x))
 
-// SPECIAL BOSS: Retorna a divisão entre dois números, arredondada pra baixo
-// PS.: Retorna 0 em caso de divisão por 0
-// (Div x y)
+// For the following 3 exercises, consider the definition of Booleans from the previous file
+
+// Returns if two numbers are equal
+// (Equal x y)
+(Equal Z Z) = True
+(Equal x Z) = False
+(Equal Z y) = False
+(Equal (S x) (S y)) = (Equal x y)
+
+// Returns if the first arg is greater than the second
+(Gtn Z Z) = False
+(Gtn Z y) = False
+(Gtn x Z) = True
+(Gtn (S x) (S y)) = (Gtn x y)
+
+// Returns if the first arg is lesser than the second
+(Ltn Z Z) = False
+(Ltn Z y) = True
+(Ltn x Z) = False
+(Ltn (S x) (S y)) = (Ltn x y)
+
+
+// SPECIAL BOSS: Returns the division between two numbers, rounded down
+// PS.: Returns 0 in case of division by 0
+
+// Division rounding up
 (DivCeil Z y) = Z
 (DivCeil x Z) = Z
 (DivCeil x y) = (S (DivCeil (Sub x y) y))
@@ -63,40 +86,19 @@
 (If True a b) = a
 (If False a b) = b
 
+// Division rounding down
 (DivFloor Z y) = Z
 (DivFloor x Z) = Z
-(DivFloor x y) = (If (Menor x y) Z (S (DivFloor (Sub x y) y)))
+(DivFloor x y) = (If (Ltn x y) Z (S (DivFloor (Sub x y) y)))
 
+// Division rounding down, another way
 (Mod Z y) = Z
 (Mod x Z) = x
-(Mod x y) = (If (Menor x y) x (Mod (Sub x y) y))
+(Mod x y) = (If (Ltn x y) x (Mod (Sub x y) y))
 
 (DivFloor2 x Z) = Z
-(DivFloor2 x y) = (DivFloor2Aux (Sub x (Mod x y)) y)
+(DivFloor2 x y) = (DivFloor2Aux (Sub x (Mod x y)) y)  // switch x for the largest multiple of y that fits
   (DivFloor2Aux Z y) = Z
   (DivFloor2Aux x y) = (S (DivFloor2Aux (Sub x y) y))
-
-// Para os exercícios a seguir, considere também a definição de Booleanos do arquivo anterior
-
-// Retorna se dois números são iguais
-// (Equal x y)
-(Equal Z Z) = True
-(Equal x Z) = False
-(Equal Z y) = False
-(Equal (S x) (S y)) = (Equal x y)
-
-// Retorna se o primeiro arg é maior que o segundo
-// (Maior x y)
-(Maior Z Z) = False
-(Maior Z y) = False
-(Maior x Z) = True
-(Maior (S x) (S y)) = (Maior x y)
-
-// Retorna se o primeiro arg é menor que o segundo
-// (Menor x y)
-(Menor Z Z) = False
-(Menor Z y) = True
-(Menor x Z) = False
-(Menor (S x) (S y)) = (Menor x y)
 
 (Main) = (DivFloor2 (Fat (S (S (S (S Z))))) (S (S (S (S Z)))))
