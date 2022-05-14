@@ -18,7 +18,7 @@ snd(pair: PairBool): Bool
 // Returns true if both elements of a PairBool are identical
 eql_elements(a: PairBool): Bool 
   open a
-  Bool.eql(a)
+  Bool.eql(a.fst, a.snd)
   
 // Returns true if both Pairs are equal 
 // eql(PairBool.new(false, false), PairBool.new(true, true)) -> false 
@@ -29,9 +29,9 @@ eql(a: PairBool, b: PairBool): Bool
   let bool_eql = (x:Bool y:Bool)
     case x y {
       false false: true
-      true  true: true
-    }
-  bool_eql(a.fst b.fst) && (a.snd b.snd)
+      true  true : true
+    } default false
+  bool_eql(a.fst b.fst) && bool_eql(a.snd b.snd)
 
 // Returns true if both Pairs are different
 // eql(PairBool.new(false, false), PairBool.new(true, true)) -> true 
@@ -54,3 +54,39 @@ neg(pair: PairBool): PairBool
 swap(pair: PairBool): PairBool 
   open pair
   PairBool.new(pair.snd pair.fst)
+
+
+ex_02: _
+  IO {
+    // fst(true, false) == true
+    IO.print(Bool.show(fst(PairBool.new(true, false))))
+    // snd(true, false) == false
+    IO.print(Bool.show(snd(PairBool.new(true, false))))
+    // eql(true, false) == false
+    IO.print(Bool.show(eql_elements(PairBool.new(true, false))))
+    // eql(true, true) ==  true
+    IO.print(Bool.show(eql_elements(PairBool.new(true, true))))
+    // eql({false, false}, {true, true}) == false
+    IO.print(Bool.show(eql(PairBool.new(false, false), PairBool.new(true, true))))
+    // eql({false, true}, {true, true}) ==  false
+    IO.print(Bool.show(eql(PairBool.new(false, true), PairBool.new(true, true))))
+    // eql({true, true}, {true, true}) ==   true
+    IO.print(Bool.show(eql(PairBool.new(true, true), PairBool.new(true, true))))
+    // true
+    IO.print(Bool.show(xor(PairBool.new(false, false), PairBool.new(true, true))))
+    // true
+    IO.print(Bool.show(xor(PairBool.new(false, true), PairBool.new(true, true))))
+    // false
+    IO.print(Bool.show(xor(PairBool.new(true, true), PairBool.new(true, true))))
+    // {true, false}
+    IO.print(PairBool.show(create(true, false)))
+    // {true, true}
+    IO.print(PairBool.show(neg(create(false, false))))
+    // {false true}
+    IO.print(PairBool.show(swap(create(true, false))))
+
+  }
+
+PairBool.show(pair: PairBool): String
+  open pair
+  "{" | Bool.show(pair.fst) | ", " | Bool.show(pair.snd) | "}"

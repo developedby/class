@@ -46,3 +46,19 @@
 // If expression. expr ? a : b
 (If True a b) = a
 (If False a b) = b
+
+
+// (Main) = (Not   False      )
+// (Main) = (Not   True       )
+// (Main) = (Equal True  True )
+// (Main) = (Equal False False)
+// (Main) = (Equal True  False)
+// (Main) = (And   True  True )
+// (Main) = (And   True  False)
+// (Main) = (Or    False False)
+// (Main) = (Or    True  False)
+// (Main) = (Xor   True  False)
+// (Main) = (Xor   False True )
+// (Main) = (Xor   True  True )
+// (Main) = (If    True  True False)
+// (Main) = (If    False True False)

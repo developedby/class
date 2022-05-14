@@ -21,15 +21,15 @@
 (Pred (S n)) = n
 
 // Returns the Double of the number
-// (Dobro x)
-(Dobro Z) = Z
-(Dobro (S n)) = (S (S (Dobro n)))
+// (Double x)
+(Double Z) = Z
+(Double (S n)) = (S (S (Double n)))
 
 // Returns the Half of the number and round it down (e.g.:"5/2 = 2") 
-// (Metade x)
-(Metade Z) = Z
-(Metade (S Z)) = Z
-(Metade (S (S n))) = (S (Metade n))
+// (Half x)
+(Half Z) = Z
+(Half (S Z)) = Z
+(Half (S (S n))) = (S (Half n))
 
 // Returns the Sum of two numbers
 // (Add x y)
@@ -101,4 +101,5 @@
   (DivFloor2Aux Z y) = Z
   (DivFloor2Aux x y) = (S (DivFloor2Aux (Sub x y) y))
 
-(Main) = (DivFloor2 (Fat (S (S (S (S Z))))) (S (S (S (S Z)))))
+// 4! / 5 = 4
+(Main) = (DivFloor2 (Fat (S (S (S (S Z))))) (S (S (S (S (S Z))))))

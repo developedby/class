@@ -57,3 +57,34 @@ or(a: MaybeBool, b: MaybeBool) : MaybeBool
       none: MaybeBool.none
     }
   }
+
+
+ex_01: _
+  IO {
+    // true
+    IO.print(Bool.show(is_none(MaybeBool.none)))
+    // false
+    IO.print(Bool.show(is_none(MaybeBool.some(true))))
+    // false
+    IO.print(Bool.show(is_some(MaybeBool.none)))
+    // true
+    IO.print(Bool.show(is_some(MaybeBool.some(true))))
+    // true
+    IO.print(Bool.show(eql(MaybeBool.none, MaybeBool.none)))
+    // false
+    IO.print(Bool.show(eql(MaybeBool.some(true), MaybeBool.some(false))))
+    // true
+    IO.print(Bool.show(eql(MaybeBool.some(true), MaybeBool.some(true))))
+    // true
+    IO.print(Bool.show(extract(create(true), false)))
+    // true
+    IO.print(Bool.show(extract(MaybeBool.none, true)))
+    // false
+    IO.print(Bool.show(extract(or(MaybeBool.none, MaybeBool.none), false)))
+    // true
+    IO.print(Bool.show(extract(or(MaybeBool.some(true), MaybeBool.none), false)))
+    // false
+    IO.print(Bool.show(extract(or(MaybeBool.none, MaybeBool.some(false)), false)))
+    // true
+    IO.print(Bool.show(extract(or(MaybeBool.some(true), MaybeBool.some(true)), false)))
+  }

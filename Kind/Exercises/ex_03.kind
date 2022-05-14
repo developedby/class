@@ -25,3 +25,13 @@ is_zero(a: Nat): Bool
     zero: true
     succ: false
   }
+
+
+ex_03: _
+  IO {
+    IO.print(Nat.show(inc(Nat.zero)))
+    IO.print(Nat.show(dec(Nat.zero)))
+    IO.print(Nat.show(dec(Nat.succ(Nat.zero))))
+    IO.print(Bool.show(is_zero(Nat.zero)))
+    IO.print(Bool.show(is_zero(Nat.succ(Nat.zero))))
+  }

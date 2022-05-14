@@ -25,3 +25,17 @@ second<A: Type, B: Type>(pair: Pair<A,B>): B
 map<A: Type, B: Type>(fn: A -> B, pair: Pair<A,A>): Pair<B,B>
   open pair
   Pair.new<B, B>(fn(pair.fst), fn(pair.snd))
+
+
+ex_05: _
+  IO {
+    // {2, 1}
+    IO.print(Pair.show!!(Nat.show, Nat.show, swap!!({1, 2})))
+    // 1
+    IO.print(Nat.show(first!!({1, 2})))
+    // 2
+    IO.print(Nat.show(second!!({1, 2})))
+    // {2, 4}
+    IO.print(Pair.show!!(Nat.show, Nat.show,
+      map!!(Nat.mul(2), {1, 2})))
+  }

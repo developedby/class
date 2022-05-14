@@ -9,7 +9,7 @@ type Nat {
 dbl(a: Nat): Nat // double
   dbl.go(a, Nat.zero)
 
-dbl.go(a: Nat, acc: Nat)
+dbl.go(a: Nat, acc: Nat): Nat
   case a {
     zero: acc
     succ: dbl.go(a.pred, Nat.succ(Nat.succ(acc)))
@@ -37,7 +37,7 @@ mul.go(a: Nat, b: Nat, acc: Nat): Nat
 // 5 - 4 = 1
 sub(a: Nat, b: Nat): Nat
   case a {
-    zero: zero
+    zero: Nat.zero
     succ: case b {
       zero: a
       succ: sub(a.pred, b.pred)
@@ -54,22 +54,6 @@ fac.go(a: Nat, acc: Nat): Nat
     zero: acc
     succ: fac.go(a.pred, mul(a, acc))
   }
-
-// Division
-// 1 / 2 = 0
-// x / 0 = 0
-// 5 / 2 = 2
-div(a: Nat, b: Nat): Nat // division
-  div.go(a, b, Nat.zero)
-
-div.go(a: Nat, b: Nat, acc: Nat): Nat
-  case a b {
-    succ succ:
-      if gtn(a, b.pred) then  // Equivalent to >=
-        div.go(sub(a, b), b, add(acc, b))
-      else
-        acc
-  } default Nat.zero
 
 // Equal
 eql(a: Nat, b: Nat): Bool // Given 2 numbers, it returns true if the 2 are the same and false if they are different.
@@ -100,4 +84,94 @@ ltn(a: Nat, b: Nat): Bool // if A >= B then false else true
     zero succ: true
     succ zero: false
     succ succ: ltn(a.pred, b.pred)
+  }
+
+// Minimum
+// min(2, 3) = 2
+// min(4, 1) = 1
+min(a: Nat, b: Nat): Nat // if A < B then A else B
+  if ltn(a, b) then a else b
+
+// Maximum
+// max(2, 3) = 3
+// max(4, 1) = 4
+max(a: Nat, b: Nat): Nat // if A > B then A else B
+  if gtn(a, b) then a else b
+
+// Divides a number by two
+hlf(a: Nat): Nat
+  hlf.go(a, 0)
+
+hlf.go(a: Nat, acc: Nat): Nat
+  case a {
+    zero: acc
+    succ: case a.pred {
+      zero: acc
+      succ: hlf.go(a.pred.pred, Nat.succ(acc))
+    }
+  }
+
+// Division
+// 1 / 2 = 0
+// x / 0 = 0
+// 5 / 2 = 2
+div(a: Nat, b: Nat): Nat // division
+  div.go(a, b, Nat.zero)
+
+div.go(a: Nat, b: Nat, acc: Nat): Nat
+  case a b {
+    succ succ:
+      if gtn(a, b.pred) then  // Equivalent to >=
+        div.go(sub(a, b), b, Nat.succ(acc))
+      else
+        acc
+  } default Nat.zero
+
+
+ex_04: _
+  IO {
+    // 18
+    IO.print(Nat.show(dbl(9)))
+    // 66
+    IO.print(Nat.show(add(54, 12)))
+    // 80
+    IO.print(Nat.show(mul(5, 16)))
+    // 0
+    IO.print(Nat.show(sub(9, 12)))
+    // 7
+    IO.print(Nat.show(sub(9, 2)))
+    // 0
+    IO.print(Nat.show(sub(0, 12)))
+    // 9
+    IO.print(Nat.show(sub(9, 0)))
+    // 362880
+    IO.print(Nat.show(fac(9)))
+    // true
+    IO.print(Bool.show(eql(9, 9)))
+    // false
+    IO.print(Bool.show(eql(9, 5)))
+    // true
+    IO.print(Bool.show(eql(0, 0)))
+    // false
+    IO.print(Bool.show(eql(4, 9)))
+    // false
+    IO.print(Bool.show(gtn(9, 9)))
+    // true
+    IO.print(Bool.show(gtn(9, 5)))
+    // false
+    IO.print(Bool.show(gtn(4, 9)))
+    // false
+    IO.print(Bool.show(ltn(9, 9)))
+    // false
+    IO.print(Bool.show(ltn(9, 5)))
+    // true
+    IO.print(Bool.show(ltn(4, 9)))
+    // 2
+    IO.print(Nat.show(min(9, 2)))
+    // 9
+    IO.print(Nat.show(max(9, 2)))
+    // 10
+    IO.print(Nat.show(hlf(21)))
+    // 4
+    IO.print(Nat.show(div(21, 5)))
   }
