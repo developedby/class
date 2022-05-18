@@ -12,7 +12,7 @@
 //
 // (Func Z)     -> Will run only for Zero.
 // (Func (S n)) -> Will run for every number that is not Zero.
-//                 By calling the function in that way, you can use 'n' as variable.
+//                 By calling the function in that way, you can use 'n' as a variable.
 // (Func x)     -> Will run for any number.
 
 // Returns the predecessor of the number
@@ -31,6 +31,12 @@
 (Half (S Z)) = Z
 (Half (S (S n))) = (S (Half n))
 
+// Returns the Half of the number and round it down (e.g.:"5/2 = 2") 
+// (Half x)
+(Half Z) = Z
+(Half (S Z)) = Z
+(Half (S (S x))) = (S (Half x))
+
 // Returns the Sum of two numbers
 // (Add x y)
 (Add Z y) = y
@@ -48,9 +54,9 @@
 (Mul (S x) y) = (Add y (Mul x y))
 
 // Returns the Factorial of the number
-// (Fat x)
-(Fat Z) = (S Z)
-(Fat (S x)) = (Mul (S x) (Fat x))
+// (Fact x)
+(Fact Z) = (S Z)
+(Fact (S x)) = (Mul (S x) (Fact x))
 
 // For the following 3 exercises, consider the definition of Booleans from the previous file
 

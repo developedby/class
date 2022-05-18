@@ -99,6 +99,9 @@ max(a: Nat, b: Nat): Nat // if A > B then A else B
   if gtn(a, b) then a else b
 
 // Divides a number by two
+// 2 / 2 = 1
+// 5 / 2 = 2
+// 1 / 2 = 0
 hlf(a: Nat): Nat
   hlf.go(a, 0)
 
