@@ -1,7 +1,16 @@
 // Integer Exercises
 
-// Functions for negative numbers to help testing 
-// Do not edit those functions
+// Integers
+type Inte { 
+  neg(num: Neg)
+  pos(num: Pos)
+}
+
+// Positive Numbers
+type Pos { 
+  zero
+  succ(pred: Pos)
+}
 
 // Negative Numbers
 type Neg { 
@@ -9,8 +18,8 @@ type Neg {
   succ(pred: Neg)
 }
 
+// example
 // -0 does not exist
-
 // Increments a negative number by one
 Neg.inc(n: Neg): Neg
   case n { 
@@ -24,7 +33,7 @@ Neg.to_nat(n: Neg): Nat
     one : Nat.succ(Nat.zero)
     succ: Nat.succ(Neg.to_nat(n.pred))
   }
-
+  
 // Converts Nat to Neg
 Nat.to_neg(n: Nat): Neg
   case n {
