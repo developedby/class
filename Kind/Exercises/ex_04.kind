@@ -131,50 +131,18 @@ div.go(a: Nat, b: Nat, acc: Nat): Nat
   } default Nat.zero
 
 
-ex_04: _
+ex_04: IO<Unit>
   IO {
-    // 18
-    IO.print(Nat.show(dbl(9)))
-    // 66
-    IO.print(Nat.show(add(54, 12)))
-    // 80
-    IO.print(Nat.show(mul(5, 16)))
-    // 0
-    IO.print(Nat.show(sub(9, 12)))
-    // 7
-    IO.print(Nat.show(sub(9, 2)))
-    // 0
-    IO.print(Nat.show(sub(0, 12)))
-    // 9
-    IO.print(Nat.show(sub(9, 0)))
-    // 362880
-    IO.print(Nat.show(fac(9)))
-    // true
-    IO.print(Bool.show(eql(9, 9)))
-    // false
-    IO.print(Bool.show(eql(9, 5)))
-    // true
-    IO.print(Bool.show(eql(0, 0)))
-    // false
-    IO.print(Bool.show(eql(4, 9)))
-    // false
-    IO.print(Bool.show(gtn(9, 9)))
-    // true
-    IO.print(Bool.show(gtn(9, 5)))
-    // false
-    IO.print(Bool.show(gtn(4, 9)))
-    // false
-    IO.print(Bool.show(ltn(9, 9)))
-    // false
-    IO.print(Bool.show(ltn(9, 5)))
-    // true
-    IO.print(Bool.show(ltn(4, 9)))
-    // 2
-    IO.print(Nat.show(min(9, 2)))
-    // 9
-    IO.print(Nat.show(max(9, 2)))
-    // 10
-    IO.print(Nat.show(hlf(21)))
-    // 4
-    IO.print(Nat.show(div(21, 5)))
+    Tests._04.dbl(dbl)
+    Tests._04.add(add)
+    Tests._04.mul(mul)
+    Tests._04.sub(sub)
+    Tests._04.fac(fac)
+    Tests._04.eql(eql)
+    Tests._04.gtn(gtn)
+    Tests._04.ltn(ltn)
+    Tests._04.min(min)
+    Tests._04.max(max)
+    Tests._04.hlf(hlf)
+    Tests._04.div(div)
   }

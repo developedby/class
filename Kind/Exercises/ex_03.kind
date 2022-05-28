@@ -29,9 +29,7 @@ is_zero(a: Nat): Bool
 
 ex_03: _
   IO {
-    IO.print(Nat.show(inc(Nat.zero)))
-    IO.print(Nat.show(dec(Nat.zero)))
-    IO.print(Nat.show(dec(Nat.succ(Nat.zero))))
-    IO.print(Bool.show(is_zero(Nat.zero)))
-    IO.print(Bool.show(is_zero(Nat.succ(Nat.zero))))
+    Tests._03.inc(inc)
+    Tests._03.dec(dec)
+    Tests._03.is_zero(is_zero)
   }

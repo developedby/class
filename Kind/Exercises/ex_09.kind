@@ -23,22 +23,28 @@ zip<A: Type, B: Type>(xs: List<A>, ys: List<B>): List<Pair<A,B>>
   } default List.nil!
 
 // Returns the smallest element of a List
-smallest(xs: List<Nat>): Nat
+smallest(xs: List<Nat>): Maybe<Nat>
   case xs {
-    nil : 0
+    nil : Maybe.none<Nat>
     cons: case xs.tail {
-      nil : xs.head
-      cons: Nat.min(xs.head, smallest(xs.tail))
+      nil : Maybe.some<Nat>(xs.head)
+      cons: case smallest(xs.tail) as min_tail {
+        none: Maybe.some<Nat>(xs.head)
+        some: Maybe.some<Nat>(Nat.min(xs.head, min_tail.value))
+      }
     }
   }
 
 // Returns the same list without the smallest element
 delete_smallest(xs: List<Nat>): List<Nat>
-  delete_smallest.go(xs, smallest(xs))
+  case smallest(xs) as min {
+    none: List.nil<Nat>
+    some: delete_smallest.go(xs, min.value)
+  }
 
 delete_smallest.go(xs: List<Nat>, min: Nat): List<Nat>
   case xs {
-    nil : List.nil!
+    nil : List.nil<Nat>
     cons:
       if xs.head =? min then
         xs.tail
@@ -49,11 +55,14 @@ delete_smallest.go(xs: List<Nat>, min: Nat): List<Nat>
 // Returns the same list, in ascending order
 sort_ascending(xs: List<Nat>): List<Nat>
   case xs {
-    nil : []
-    cons:
-      let min       = smallest(xs)
-      let popped_xs = delete_smallest.go(xs, min)
-      List.cons!(min, sort_ascending(popped_xs))
+    nil : List.nil<Nat>
+    cons: case smallest(xs) as min {
+      none: List.nil<Nat>
+      some:
+        let popped_xs = delete_smallest.go(xs, min.value)
+        let sorted_tail = sort_ascending(popped_xs)
+        List.cons<Nat>(min.value, sorted_tail)
+    }
   }
 
 // Returns an element at an index from the list
@@ -77,9 +86,9 @@ filter<A: Type>(f: A -> Bool, xs: List<A>): List<A>
     nil : List.nil<A>
     cons:
       if f(xs.head) then
-        xs.head & filter!(f, xs.tail)
+        xs.head & filter<A>(f, xs.tail)
       else
-        filter!(f, xs.tail)
+        filter<A>(f, xs.tail)
   }
 
 
@@ -89,7 +98,7 @@ ex_09: _
       Pair.show!!(Nat.show, String.show),
       zip!!([1,2,3,4,5], ["1", "2", "3", "4"])
     ))
-    IO.print(Nat.show(smallest([6,5,4,7,8,9])))
+    IO.print(Maybe.show!(Nat.show, smallest([6,5,4,7,8,9])))
     IO.print(List.show!(Nat.show, delete_smallest([6,5,4,7,8,9])))
     IO.print(List.show!(Nat.show, sort_ascending([6,5,4,7,8,9])))
     IO.print(Maybe.show!(Nat.show, get!(3, [1,2,3,4,5])))

@@ -251,98 +251,20 @@ take(n: Nat, bs: Bits): Bits
   }
 
 
-ex_07: _
+ex_07: IO<Unit>
   IO {
-    let a = Bits.i(Bits.i(Bits.e))  // 3
-    let b = Bits.o(Bits.i(Bits.i(Bits.e)))  // 6
-    let c = Bits.o(Bits.o(Bits.i(Bits.i(Bits.e))))  // 12
-    let d = Bits.i(Bits.i(Bits.i(Bits.i(Bits.e))))  // 15
-
-    IO.print("is_empty")
-    IO.print(Bool.show(is_empty(Bits.e)))
-    IO.print(Bool.show(is_empty(Bits.o(Bits.e))))
-    IO.print(Bool.show(is_empty(a)))
-    IO.print(Bool.show(is_empty(b)))
-    IO.print(Bool.show(is_empty(c)))
-    IO.print(Bool.show(is_empty(d)))
-
-    IO.print("tail")
-    IO.print(Bits.show(tail(a)))
-    IO.print(Bits.show(tail(b)))
-    IO.print(Bits.show(tail(c)))
-    IO.print(Bits.show(tail(d)))
-
-    IO.print("complement")
-    IO.print(Bits.show(complement(a)))
-    IO.print(Bits.show(complement(b)))
-    IO.print(Bits.show(complement(c)))
-    IO.print(Bits.show(complement(d)))
-
-    IO.print("inc")
-    IO.print(Bits.show(inc(a)))
-    IO.print(Bits.show(inc(b)))
-    IO.print(Bits.show(inc(c)))
-    IO.print(Bits.show(inc(d)))
-
-    IO.print("dec")
-    IO.print(Bits.show(dec(a)))
-    IO.print(Bits.show(dec(b)))
-    IO.print(Bits.show(dec(c)))
-    IO.print(Bits.show(dec(d)))
-
-    IO.print("concat")
-    IO.print(Bits.show(concat(a,b)))
-    IO.print(Bits.show(concat(b,c)))
-    IO.print(Bits.show(concat(c,d)))
-
-    IO.print("add")
-    IO.print(Bits.show(add(a,b)))
-    IO.print(Bits.show(add(b,c)))
-    IO.print(Bits.show(add(c,d)))
-
-    IO.print("and")
-    IO.print(Bits.show(and(a,b)))
-    IO.print(Bits.show(and(b,c)))
-    IO.print(Bits.show(and(c,d)))
-
-    IO.print("or")
-    IO.print(Bits.show(or(a,b)))
-    IO.print(Bits.show(or(b,c)))
-    IO.print(Bits.show(or(c,d)))
-
-    IO.print("eql")
-    IO.print(Bool.show(eql(a,b)))
-    IO.print(Bool.show(eql(b,c)))
-    IO.print(Bool.show(eql(d,d)))
-
-    IO.print("reverse")
-    IO.print(Bits.show(reverse(a)))
-    IO.print(Bits.show(reverse(b)))
-    IO.print(Bits.show(reverse(c)))
-    IO.print(Bits.show(reverse(d)))
-
-    IO.print("length")
-    IO.print(Nat.show(length(a)))
-    IO.print(Nat.show(length(b)))
-    IO.print(Nat.show(length(c)))
-    IO.print(Nat.show(length(d)))
-
-    IO.print("mul")
-    IO.print(Bits.show(mul(a,b)))
-    IO.print(Bits.show(mul(b,c)))
-    IO.print(Bits.show(mul(c,d)))
-
-    IO.print("drop")
-    IO.print(Bits.show(drop(1,a)))
-    IO.print(Bits.show(drop(1,b)))
-    IO.print(Bits.show(drop(1,c)))
-    IO.print(Bits.show(drop(2,d)))
-    IO.print(Bits.show(drop(10,d)))
-
-    IO.print("take")
-    IO.print(Bits.show(take(1,a)))
-    IO.print(Bits.show(take(2,b)))
-    IO.print(Bits.show(take(3,c)))
-    IO.print(Bits.show(take(4,d)))
-    IO.print(Bits.show(take(20,d)))
+    Tests._07.is_empty(is_empty)
+    Tests._07.tail(tail)
+    Tests._07.not(notb)
+    Tests._07.inc(inc)
+    Tests._07.dec(dec)
+    Tests._07.concat(concat)
+    Tests._07.add(add)
+    Tests._07.and(and)
+    Tests._07.eql(eql)
+    Tests._07.reverse(reverse)
+    Tests._07.length(length)
+    Tests._07.mul(mul)
+    Tests._07.drop(drop)
+    Tests._07.take(take)
   }

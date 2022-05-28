@@ -1,15 +1,9 @@
-// Integer Exercises
+// Inte Exercises
 
 // Integers
 type Inte { 
   neg(num: Neg)
-  pos(num: Pos)
-}
-
-// Positive Numbers
-type Pos { 
-  zero
-  succ(pred: Pos)
+  nat(num: Nat)
 }
 
 // Negative Numbers
@@ -51,192 +45,187 @@ Neg.show(n: Neg): String
 // Functions for negative numbers to help testing 
 // Do not edit those functions
 
-
-// Integers
-type Integer { 
-  neg(val: Neg)
-  nat(val: Nat)
-}
-
-// Convertss Int to String
-Integer.show(n: Integer): String
+// Converts Int to String
+inte_show(n: Inte): String
   case n {
-    neg: Neg.show(n.val) 
-    nat: Nat.show(n.val) 
+    neg: Neg.show(n.num) 
+    nat: Nat.show(n.num) 
   }
 
-// Creates an Integer
-Integer.new(is_neg: Bool, val: Nat): Integer
+// Creates an Inte
+Inte.new(is_neg: Bool, val: Nat): Inte
   case is_neg {
-    false: Integer.nat(val)
+    false: Inte.nat(val)
     true : case val {
-      zero: Integer.nat(Nat.zero)
-      succ: Integer.neg(Nat.to_neg(val))
+      zero: Inte.nat(Nat.zero)
+      succ: Inte.neg(Nat.to_neg(val))
     }
   }
 
+int(is_pos: Bool, val: Nat): Inte
+  Inte.new(Bool.not(is_pos), val)
 
 // Exercises:
 
-// Increments an Integer
+// Increments an Inte
 // inc(-1) = +0
 // inc(-2) = -1
 // inc(+2) = +3
-Integer.inc(a: Integer): Integer
+inc(a: Inte): Inte
   case a {
-    nat: Integer.nat(Nat.succ(a.val))
-    neg: case a.val {
-      one : Integer.nat(Nat.zero)
-      succ: Integer.neg(a.val.pred)
+    nat: Inte.nat(Nat.succ(a.num))
+    neg: case a.num {
+      one : Inte.nat(Nat.zero)
+      succ: Inte.neg(a.num.pred)
     }
   }
 
-// Decrements an Integer
+// Decrements an Inte
 // dec(-1) = -2
 // dec(+2) = +1
 // dec(+0) = -1
-Integer.dec(a: Integer): Integer
+dec(a: Inte): Inte
   case a {
-    nat: case a.val {
-      zero: Integer.neg(Neg.one)
-      succ: Integer.nat(a.val.pred)
+    nat: case a.num {
+      zero: Inte.neg(Neg.one)
+      succ: Inte.nat(a.num.pred)
     }
-    neg: Integer.neg(Neg.succ(a.val))
+    neg: Inte.neg(Neg.succ(a.num))
   }
 
-// Doubles an Integer
+// Doubles an Inte
 // dbl(-4) = -8
 // dbl(-1) = -2
 // dbl(+2) = +4
-Integer.double(a: Integer): Integer 
+dbl(a: Inte): Inte 
   case a {
-    nat: Integer.new(false, Nat.double(a.val))
-    neg: Integer.new(true , Nat.double(Neg.to_nat(a.val)))
+    nat: Inte.new(false, Nat.double(a.num))
+    neg: Inte.new(true , Nat.double(Neg.to_nat(a.num)))
   }
 
 // Adds two Integers
 // -4 + -2 = -6
 // -4 + +2 = -2
-Integer.add(a: Integer, b: Integer): Integer
+add(a: Inte, b: Inte): Inte
   case a b {
     nat nat:
-      case a.val {
+      case a.num {
         zero: b
         succ:
-          let dec_a = Integer.nat(a.val.pred)
-          let inc_b = Integer.nat(Nat.succ(b.val))
-          Integer.add(dec_a, inc_b)
+          let dec_a = Inte.nat(a.num.pred)
+          let inc_b = Inte.nat(Nat.succ(b.num))
+          add(dec_a, inc_b)
       }
     neg neg:
-      case a.val {
-        one : Integer.neg(Neg.succ(b.val))
+      case a.num {
+        one : Inte.neg(Neg.succ(b.num))
         succ:
-          let inc_a = Integer.neg(a.val.pred)
-          let dec_b = Integer.neg(Neg.succ(b.val))
-          Integer.add(inc_a, dec_b)
+          let inc_a = Inte.neg(a.num.pred)
+          let dec_b = Inte.neg(Neg.succ(b.num))
+          add(inc_a, dec_b)
       }
     nat neg:
-      case a.val b.val {
+      case a.num b.num {
         zero one : b
         zero succ: b
-        succ one : Integer.nat(a.val.pred)
+        succ one : Inte.nat(a.num.pred)
         succ succ:
-          let dec_a = Integer.nat(a.val.pred)
-          let inc_b = Integer.neg(b.val.pred)
-          Integer.add(dec_a, inc_b)
+          let dec_a = Inte.nat(a.num.pred)
+          let inc_b = Inte.neg(b.num.pred)
+          add(dec_a, inc_b)
       }
     neg nat:
-      case a.val b.val {
+      case a.num b.num {
         one  zero: a
         succ zero: a
-        one  succ: Integer.nat(b.val.pred)
+        one  succ: Inte.nat(b.num.pred)
         succ succ:
-          let inc_a = Integer.neg(a.val.pred)
-          let dec_b = Integer.nat(b.val.pred)
-          Integer.add(inc_a, dec_b)
+          let inc_a = Inte.neg(a.num.pred)
+          let dec_b = Inte.nat(b.num.pred)
+          add(inc_a, dec_b)
       }
   }
 
-Integer.add2(a: Integer, b: Integer): Integer
+add2(a: Inte, b: Inte): Inte
   case a b {
     nat nat:
-      case a.val {
+      case a.num {
         zero: b
-        succ: Integer.add(Integer.dec(a), Integer.inc(b))
+        succ: add2(dec(a), inc(b))
       }
     neg neg:
-      case a.val {
-        one : Integer.dec(b)
-        pred: Integer.add(Integer.inc(a), Integer.dec(b))
+      case a.num {
+        one : dec(b)
+        succ: add2(inc(a), dec(b))
       }
     nat neg:
-      case a.val b.val {
+      case a.num b.num {
         zero one : b
         zero succ: b
-        succ one : Integer.dec(a)
-        succ succ: Integer.add(Integer.dec(a), Integer.inc(b))
+        succ one : dec(a)
+        succ succ: add2(dec(a), inc(b))
       }
     neg nat:
-      case a.val b.val {
+      case a.num b.num {
         one  zero: a
         succ zero: a
-        one  succ: Integer.dec(b)
-        succ succ: Integer.add(Integer.inc(a), Integer.dec(b))
+        one  succ: dec(b)
+        succ succ: add2(inc(a), dec(b))
       }
   }
 
-Integer.add3(a: Integer, b: Integer): Integer
+add3(a: Inte, b: Inte): Inte
   case a b {
-    nat nat: Integer.new(false,            a.val  +            b.val )
-    neg neg: Integer.new(true , Neg.to_nat(a.val) + Net.to_nat(b.val))
-    nat neg:
-      if Integer.gte(Integer.abs(a), Integer.abs(b)) then
-             Integer.new(false,            a.val  - Neg.to_nat(b.val))
+    nat nat: Inte.new(false, a.num + b.num )
+    neg neg: Inte.new(true, Neg.to_nat(a.num) + Neg.to_nat(b.num))
+    nat neg: 
+      if gte(abs(a), abs(b)) then
+        Inte.new(false, a.num - Neg.to_nat(b.num))
       else
-             Integer.new(true , Neg.to_nat(b.val) -            a.val )
-    neg nat: Integer.add3(b, a)
+        Inte.new(true, Neg.to_nat(b.num) - a.num )
+    neg nat: add3(b, a)
   }
 
 // Absolute value
-Integer.abs(n: Integer): Integer
+abs(n: Inte): Inte
   case n {
     nat: n
-    neg: Integer.negate(n)
+    neg: neg(n)
   }
 
 // Converts negatives and positives
-Integer.negate(n: Integer): Integer
+neg(n: Inte): Inte
   case n {
-    nat: case n.val {
-      zero: Integer.nat(Nat.zero)
-      succ: Integer.neg(Nat.to_neg(n.val))
+    nat: case n.num {
+      zero: Inte.nat(Nat.zero)
+      succ: Inte.neg(Nat.to_neg(n.num))
     }
-    neg: Integer.nat(Neg.to_nat(n.val))
+    neg: Inte.nat(Neg.to_nat(n.num))
   }
 
 // Multiplies two numbers
 // -2 * +3 = -6
 // -4 * -5 = +20
-Integer.mul(a: Integer, b: Integer): Integer
+mul(a: Inte, b: Inte): Inte
   case a b {
-    nat nat: Integer.new(false,            a.val  *            b.val )
-    neg neg: Integer.new(false, Neg.to_nat(a.val) * Neg.to_nat(b.val))
-    nat neg: Integer.new(true ,            a.val  * Neg.to_nat(b.val))
-    neg nat: Integer.new(true , Neg.to_nat(a.val) *            b.val )
+    nat nat: Inte.new(false,            a.num  *            b.num )
+    neg neg: Inte.new(false, Neg.to_nat(a.num) * Neg.to_nat(b.num))
+    nat neg: Inte.new(true ,            a.num  * Neg.to_nat(b.num))
+    neg nat: Inte.new(true , Neg.to_nat(a.num) *            b.num )
   }
 
 // Subtracts two Interger numbers
 // -6 - +6 = +0
 // -4 - -6 = +2
-Integer.sub(a: Integer, b: Integer): Integer
-  Integer.add(a, Integer.negate(b))
+sub(a: Inte, b: Inte): Inte
+  add(a, neg(b))
 
 // Equal
 // Given 2 numbers, it returns true if the 2 are the same and false if they are different.
-Integer.eql(a: Integer, b: Integer): Bool
+eql(a: Inte, b: Inte): Bool
   case a b {
-    nat nat: a.val =? b.val
-    neg neg: Neg.to_nat(a.val) =? Neg.to_nat(b.val)
+    nat nat: a.num =? b.num
+    neg neg: Neg.to_nat(a.num) =? Neg.to_nat(b.num)
     nat neg: false
     neg nat: false
   }
@@ -247,47 +236,47 @@ Integer.eql(a: Integer, b: Integer): Bool
 // -2 > +0 = False
 // +0 > -2 = True
 // if A > B == True else false
-Integer.gtn(a: Integer, b: Integer): Bool
+gtn(a: Inte, b: Inte): Bool
   case a b {
-    nat nat: Nat.gtn(a.val, b.val)
-    neg neg: Nat.ltn(Neg.to_nat(a.val), Neg.to_nat(b.val))
+    nat nat: Nat.gtn(a.num, b.num)
+    neg neg: Nat.ltn(Neg.to_nat(a.num), Neg.to_nat(b.num))
     nat neg: true
     neg nat: false
   }
 
-Integer.gte(a: Integer, b: Integer): Bool
-  Integer.gtn(Integer.inc(a), b)
+gte(a: Inte, b: Inte): Bool
+  gtn(inc(a), b)
 
 // Lower than
 // -1 < +0 = True
 // +0 < -1 = False
 // if A > B == False else true
-Integer.ltn(a: Integer, b: Integer): Bool
-  Bool.not(Integer.gte(a, b))
+ltn(a: Inte, b: Inte): Bool
+  Bool.not(gte(a, b))
 
 // Minimum
 // min(-1, +0) = -1
 // min(-1, -3) = -3
 // if A < B then A else B
-Integer.min(a: Integer, b: Integer): Integer
-  if Integer.ltn(a, b) then a else b
+min(a: Inte, b: Inte): Inte
+  if ltn(a, b) then a else b
 
 // Maximum
 // max(-1, +0) = +0
 // max(-1, -3) = -1
 // if A > B then A else B
-Integer.max(a: Integer, b: Integer): Integer
-  if Integer.gtn(a, b) then a else b
+max(a: Inte, b: Inte): Inte
+  if gtn(a, b) then a else b
 
 // Half
 // Divides a number by two
 // hlf(-4) = -2
 // hlf(-1) = +0
 // hlf(+6) = +3
-Integer.half(a: Integer): Integer
+hlf(a: Inte): Inte
   case a {
-    nat: Integer.new(false, Nat.half(           a.val ))
-    neg: Integer.new(true , Nat.half(Neg.to_nat(a.val)))
+    nat: Inte.new(false, Nat.half(           a.num ))
+    neg: Inte.new(true , Nat.half(Neg.to_nat(a.num)))
   }
 
 // Division
@@ -295,93 +284,28 @@ Integer.half(a: Integer): Integer
 // int(false, 8)  / int(true,  4)  = -2
 // int(false, 11) / int(false, 5)  = +2
 // int(true,  10) / int(false, 12) = +0
-Integer.div(a: Integer, b: Integer): Integer 
+div(a: Inte, b: Inte): Inte 
   case a b {
-    nat nat: Integer.new(false,            a.val  /            b.val )
-    neg neg: Integer.new(false, Neg.to_nat(a.val) / Neg.to_nat(b.val))
-    nat neg: Integer.new(true ,            a.val  / Neg.to_nat(b.val))
-    neg nat: Integer.new(true , Neg.to_nat(a.val) /            b.val )
+    nat nat: Inte.new(false,            a.num  /            b.num )
+    neg neg: Inte.new(false, Neg.to_nat(a.num) / Neg.to_nat(b.num))
+    nat neg: Inte.new(true ,            a.num  / Neg.to_nat(b.num))
+    neg nat: Inte.new(true , Neg.to_nat(a.num) /            b.num )
   }
 
 
-ex_06: _
+ex_06: IO<Unit>
   IO {
-    IO.print(Neg.show(Neg.inc(Neg.one)))
-    IO.print(Neg.show(Neg.inc(Neg.succ(Neg.one))))
-    IO.print(Nat.show(Neg.to_nat(Neg.one)))
-    IO.print(Neg.show(Nat.to_neg(5)))
-
-    let zero = Integer.new(false, 0)
-    let n_one = Integer.new(true, 1)
-    let four = Integer.new(false, 4)
-    let n_four = Integer.new(true, 4)
-
-    IO.print(Integer.show(four))
-    IO.print(Integer.show(n_four))
-
-    IO.print("\n  inc")
-    IO.print(Integer.show(Integer.inc(zero)))
-    IO.print(Integer.show(Integer.inc(four)))
-    IO.print(Integer.show(Integer.inc(n_one)))
-    IO.print(Integer.show(Integer.inc(n_four)))
-
-    IO.print("\n  dec")
-    IO.print(Integer.show(Integer.dec(zero)))
-    IO.print(Integer.show(Integer.dec(four)))
-    IO.print(Integer.show(Integer.dec(n_one)))
-    IO.print(Integer.show(Integer.dec(n_four)))
-
-    IO.print("\n  double")
-    IO.print(Integer.show(Integer.double(zero)))
-    IO.print(Integer.show(Integer.double(four)))
-    IO.print(Integer.show(Integer.double(n_one)))
-    IO.print(Integer.show(Integer.double(n_four)))
-
-    IO.print("\n  half")
-    IO.print(Integer.show(Integer.half(zero)))
-    IO.print(Integer.show(Integer.half(Integer.inc(zero))))
-    IO.print(Integer.show(Integer.half(four)))
-    IO.print(Integer.show(Integer.half(n_one)))
-    IO.print(Integer.show(Integer.half(n_four)))
-
-    IO.print("\n  abs")
-    IO.print(Integer.show(Integer.abs(zero)))
-    IO.print(Integer.show(Integer.abs(four)))
-    IO.print(Integer.show(Integer.abs(n_one)))
-    IO.print(Integer.show(Integer.abs(n_four)))
-
-    IO.print("\n  negate")
-    IO.print(Integer.show(Integer.negate(zero)))
-    IO.print(Integer.show(Integer.negate(four)))
-    IO.print(Integer.show(Integer.negate(n_one)))
-    IO.print(Integer.show(Integer.negate(n_four)))
-
-    let seven = Integer.new(false, 7)
-    let n_seven = Integer.new(true, 7)
-
-    IO.print("\n  add")
-    IO.print(Integer.show(Integer.add(four, seven)))
-    IO.print(Integer.show(Integer.add(n_four, seven)))
-    IO.print(Integer.show(Integer.add(four, n_seven)))
-    IO.print(Integer.show(Integer.add(n_four, n_seven)))
-
-    IO.print("\n  sub")
-    IO.print(Integer.show(Integer.sub(four, seven)))
-    IO.print(Integer.show(Integer.sub(n_four, seven)))
-    IO.print(Integer.show(Integer.sub(four, n_seven)))
-    IO.print(Integer.show(Integer.sub(n_four, n_seven)))
-
-    IO.print("\n  mul")
-    IO.print(Integer.show(Integer.mul(four, seven)))
-    IO.print(Integer.show(Integer.mul(n_four, seven)))
-    IO.print(Integer.show(Integer.mul(four, n_seven)))
-    IO.print(Integer.show(Integer.mul(n_four, n_seven)))
-
-    IO.print("\n  div")
-    let thirtyfour = Integer.new(false, 34)
-    let n_thirtyfour = Integer.new(true, 34)
-    IO.print(Integer.show(Integer.div(thirtyfour, seven)))
-    IO.print(Integer.show(Integer.div(n_thirtyfour, seven)))
-    IO.print(Integer.show(Integer.div(thirtyfour, n_seven)))
-    IO.print(Integer.show(Integer.div(n_thirtyfour, n_seven)))
+    Tests._06.inc(inc)
+    Tests._06.dec(dec)
+    Tests._06.dbl(dbl)
+    Tests._06.add(add)
+    Tests._06.mul(mul)
+    Tests._06.sub(sub)
+    Tests._06.eql(eql)
+    Tests._06.gtn(gtn)
+    Tests._06.ltn(ltn)
+    Tests._06.min(min)
+    Tests._06.max(max)
+    Tests._06.hlf(hlf)
+    Tests._06.div(div)
   }

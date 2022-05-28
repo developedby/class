@@ -56,37 +56,14 @@ swap(pair: PairBool): PairBool
   PairBool.new(pair.snd pair.fst)
 
 
-ex_02: _
+ex_02: IO<Unit>
   IO {
-    // fst(true, false) == true
-    IO.print(Bool.show(fst(PairBool.new(true, false))))
-    // snd(true, false) == false
-    IO.print(Bool.show(snd(PairBool.new(true, false))))
-    // eql(true, false) == false
-    IO.print(Bool.show(eql_elements(PairBool.new(true, false))))
-    // eql(true, true) ==  true
-    IO.print(Bool.show(eql_elements(PairBool.new(true, true))))
-    // eql({false, false}, {true, true}) == false
-    IO.print(Bool.show(eql(PairBool.new(false, false), PairBool.new(true, true))))
-    // eql({false, true}, {true, true}) ==  false
-    IO.print(Bool.show(eql(PairBool.new(false, true), PairBool.new(true, true))))
-    // eql({true, true}, {true, true}) ==   true
-    IO.print(Bool.show(eql(PairBool.new(true, true), PairBool.new(true, true))))
-    // true
-    IO.print(Bool.show(xor(PairBool.new(false, false), PairBool.new(true, true))))
-    // true
-    IO.print(Bool.show(xor(PairBool.new(false, true), PairBool.new(true, true))))
-    // false
-    IO.print(Bool.show(xor(PairBool.new(true, true), PairBool.new(true, true))))
-    // {true, false}
-    IO.print(PairBool.show(create(true, false)))
-    // {true, true}
-    IO.print(PairBool.show(neg(create(false, false))))
-    // {false true}
-    IO.print(PairBool.show(swap(create(true, false))))
-
+    Tests._02.fst(fst)
+    Tests._02.snd(snd)
+    Tests._02.eql_elements(eql_elements)
+    Tests._02.eql(eql)
+    Tests._02.not_eql(not_eql)
+    Tests._02.create(create)
+    Tests._02.neg(neg)
+    Tests._02.swap(swap)
   }
-
-PairBool.show(pair: PairBool): String
-  open pair
-  "{" | Bool.show(pair.fst) | ", " | Bool.show(pair.snd) | "}"
