@@ -30,8 +30,7 @@ Char: Type
 //is_upper('A') -> Bool.true
 //is_upper('0') -> Bool.false
 is_upper(x: Char): Bool
-  ?is_upper
-
+  U16.gte(x, 'A') && U16.lte(x, 'Z')
 
 
 //Verifies if the character is Lower Case
@@ -40,8 +39,7 @@ is_upper(x: Char): Bool
 //is_lower('A') -> Bool.false
 //is_lower('0') -> Bool.false
 is_lower(x: Char): Bool
-  ?is_lower
-
+  U16.gte(x, 'a') && U16.lte(x, 'z')
 
 
 //Verifies if the character is a Number-Digit Value
@@ -50,18 +48,16 @@ is_lower(x: Char): Bool
 //is_digit('A') -> Bool.false
 //is_digit('0') -> Bool.true
 is_digit(x: Char): Bool
-  ?is_digit
-
+  U16.gte(x, '0') && U16.lte(x, '9')
 
 
 //Verifies if both of the Characters are the same
 
-//is_equal('a', 'A') -> Bool.false
-//is_equal('A', '0') -> Bool.false
-//is_equal('0', '0') -> Bool.true
+//equal('a', 'A') -> Bool.false
+//equal('A', '0') -> Bool.false
+//equal('0', '0') -> Bool.true
 equal(x: Char, y: Char): Bool
-  ?equal
-
+  U16.eql(x, y)
 
 
 //Transforms Characters into Nat digits
@@ -70,8 +66,10 @@ equal(x: Char, y: Char): Bool
 //to_digit('1') -> Nat.succ(Nat.zero)
 //to_digit('4') -> 4
 to_digit(x: Char): Nat
-  ?to_digit
-
+  if is_digit(x) then
+    U16.to_nat(U16.sub(x, '0'))
+  else
+    0
 
 
 //Transforms all Characters into Lower Case Characters
@@ -80,8 +78,10 @@ to_digit(x: Char): Nat
 //to_lower('B') -> 'b'
 //to_lower('Z') -> 'z'
 to_lower(x: Char): Char
-  ?to_lower
-
+  if is_upper(x) then
+    U16.add(U16.sub(x, 'A'), 'a')
+  else
+    x
 
 
 //Transforms all Characters into Upper Case Characters
@@ -90,9 +90,10 @@ to_lower(x: Char): Char
 //to_upper('b') -> 'B'
 //to_upper('z') -> 'Z'
 to_upper(x: Char): Char
-  ?to_upper
-
-
+  if is_lower(x) then
+    U16.add(U16.sub(x, 'a'), 'A')
+  else
+    x
 
 
 
@@ -113,30 +114,32 @@ type String {
 //c = "text"
 
 
-
 //Concatenates two Strings into one
 
 //concat(a,b) -> "HiHello"
 //concat(b,c) -> "Hellotext"
 concat(xs: String, ys: String): String
-  ?concat
-
+  case xs {
+    nil : ys
+    cons: String.cons(xs.head, concat(xs.tail, ys))
+  }
 
 
 //Applies a Function to all Characters of the String
 
 //map(to_lower, a) -> "hi"
 map(fn: Char -> Char, xs: String): String
-  ?map
-
+  case xs {
+    nil : String.nil
+    cons: String.cons(fn(xs.head), map(fn, xs.tail))
+  }
 
 
 //Converts all Lower Case Caracters in a String to Upper Case
 
 //string_to_upper(c) -> "TEXT"
 string_to_upper(xs: String): String
-  ?to_upper
-
+  map(to_upper, xs)
 
 
 //Convers the String into bits
@@ -145,9 +148,13 @@ string_to_upper(xs: String): String
 //to_bits(b) -> "0000000001101111 0000000001101100 00000000011011000 000000001100101 0000000001001000"
 //to_bits(c) -> "0000000001110100 0000000001111000 00000000011001010 000000001110100"
 to_bits(xs: String): Bits
-  ?to_bits
+  to_bits.go(xs, Bits.e)
 
-
+to_bits.go(xs: String, acc: Bits): Bits
+  case xs {
+    nil : acc
+    cons: to_bits.go(xs.tail, Bits.concat(acc, U16.to_bits(xs.head)))
+  }
 
 //Verifies if two Strings are Equal
 
@@ -155,8 +162,12 @@ to_bits(xs: String): Bits
 //stringequal(a, b) -> Bool.false
 //stringequal(b, c) -> Bool.false
 stringequal(xs: String, ys: String): Bool
-  ?stringequal
-
+  case xs ys {
+    nil  nil : true
+    nil  cons: false
+    cons nil : false
+    cons cons: equal(xs.head, ys.head) && stringequal(xs.tail, ys.tail)
+  }
 
 
 //Verifies if All String elements are Numbers
@@ -165,53 +176,125 @@ stringequal(xs: String, ys: String): Bool
 //is_nat(b)      -> Bool.false
 //is_nat("1234") -> Bool.true
 is_nat(xs: String): Bool
-  ?is_nat
-
+  case xs {
+    nil : true
+    cons: is_digit(xs.head) && is_nat(xs.tail)
+  }
 
 
 // Divides the elements of a String into a list, using a match you decide
 
-//split(b, "l") -> ["He","" , "o"
+//split(b, "l") -> ["He", "", "o"]
 //split(c, "e") -> ["t", "xt"]
 split(xs: String, match: String): List<String>
-  ?split
+  split.go(xs, match, "", "", [])
 
+//  split "Hello" "ll"
+// Normalmente, só vai montando uma nova string
+//  split "ello"  "ll" "H" ""  []
+// Se começa com a mesma letra, separa ela (começo de um match)
+//  split "llo"   "ll" "He" ""   []
+//  split "lo"    "l"  "He" "l"  []
+//  split "o"     ""   "He" "ll" []
+// String de match vazia, coloca o construido até agora na lista de resultados
+// Traz a string de match de volta pra variavel
+//  split "o"   "ll" ""   "" ["He"]
+//  split ""    "ll" "o"  "" ["He"]
+// Acabou o input, retorna os resultados mais o finalzinho
+// Se der um match parcial, precisa remontar a string de match
+// e arrumar o que ta sendo construido
+//  split "Helper" "ll"
+//  split "per"    "l"  "He"   "l" []
+//  split "er"     "ll" "Help" ""  []
+
+// Extremely inefficient
+split.go(
+  xs: String
+  match: String
+  acc_text: String
+  acc_match: String
+  res: List<String>
+): List<String>
+  case xs {
+    nil: case acc_match {  // When input is over
+      nil: case acc_text {
+        nil : res  // Normal "clean" ending
+        cons: res ++ [acc_text]  // Was building next element, no match, put it in list
+      }
+      cons: res ++ [concat(acc_text, acc_match)]  // Was building match, rebuild string and put in list
+    }
+    cons: case match {  // When there is still input to process
+      nil : split.go(xs, acc_match, "", "", res ++ [acc_text])  // Match ok, add new element to list
+      cons:
+        if equal(match.head, xs.head) then  // Characters match, add one char to match
+          let crnt_match = concat(acc_match, String.cons(xs.head, ""))
+          split.go(xs.tail, match.tail, acc_text, crnt_match, res)
+        else case acc_match {
+          nil:  // No match so far, continue building next element
+            let crnt_text = concat(acc_text, String.cons(xs.head, ""))
+            split.go(xs.tail, match, crnt_text, acc_match, res)
+          cons:  // Match broke, go back
+            let crnt_xs = concat(acc_match.tail, xs)  // Move forward one char from before match start
+            let crnt_match = concat(acc_match, match)
+            let crnt_text = concat(acc_text, String.cons(acc_match.head, ""))
+            split.go(crnt_xs, crnt_match, crnt_text, "", res)
+        }
+    }
+  }
 
 
 // Takes any elements while the condition is matched.
 
 //take_while(is_upper,    a) -> "HI"
 //take_while(is_lower,    b) -> ""
-//take_while(is_equal('t'), c) -> "t"
+//take_while(equal('t'), c) -> "t"
 take_while(cond: Char -> Bool, xs: String): String
-  ?take_while
-
+  case xs {
+    nil : ""
+    cons:
+      if cond(xs.head) then
+        String.cons(xs.head, take_while(cond, xs.tail))
+      else
+        ""
+  }
 
 
 //Finds the index of the head for the first occurence if any of the Characters are equal
 
-//find(a, "H") -> 0
-//find(b, "l") -> 2
-//find(c, "x") -> 2
+//find(a, 'H') -> 0
+//find(b, 'l') -> 2
+//find(c, 'x') -> 2
 find(xs: String, x: Char): Nat
-  ?find
+  case xs {
+    nil : 0
+    cons: if equal(x, xs.head) then 0 else Nat.succ(find(xs.tail, x))
+  }
 
 
 //Filters the String and discards all the Chars that doesn't satisfy given condition 
 
 //filter(is_upper,      a) -> "HI"
 //filter(is_lower,      b) -> "ello"
-//filter(is_equal('t'), c) -> "tt"
+//filter(equal('t'), c) -> "tt"
 filter(cond: Char -> Bool, xs: String): String
-  ?filter
+  case xs {
+    nil : String.nil
+    cons:
+      if cond(xs.head) then
+        String.cons(xs.head, filter(cond, xs.tail))
+      else
+        filter(cond, xs.tail)
+  }
 
 
 //Concatenates all elements of a List of Strings
 
 //flatten([a,b,c]) -> "HIHellotext"
 flatten(lxs: List<String>): String
-  ?flatten
-
+  case lxs {
+    nil : ""
+    cons: concat(lxs.head, flatten(lxs.tail))
+  }
 
 
 //Drops a n Number of characteres from a String
@@ -220,9 +303,13 @@ flatten(lxs: List<String>): String
 //drop(2, b) -> "llo"
 //drop(3, c) -> "t"
 drop(n: Nat, xs: String): String
-  ?stringdrop
-
-
+  case n {
+    zero: xs
+    succ: case xs {
+      nil : ""
+      cons: drop(n.pred, xs.tail)
+    }
+  }
 
 
 //Takes n elements of a String
@@ -230,9 +317,14 @@ drop(n: Nat, xs: String): String
 //take(1, a) ->  "H"
 //take(2, b) ->  "He"
 //take(3, c) ->  "tex"
-take(n: Nat xs: String): String
-  ?stringtake
-
+take(n: Nat, xs: String): String
+  case n {
+    zero: ""
+    succ: case xs {
+      nil : ""
+      cons: String.cons(xs.head, take(n.pred, xs.tail))
+    }
+  }
 
 
 //Takes a x part of the string after a n Index of values get dropped
@@ -241,4 +333,125 @@ take(n: Nat xs: String): String
 //slice(2, 4, b) -> "ll"
 //slice(1, 3, c) -> "ex"
 slice(n: Nat, x: Nat, xs: String): String
-  ?stringslice
+  case n {
+    zero: case x {
+      zero: ""
+      succ: case xs {
+        nil : ""
+        cons: String.cons(xs.head, slice(0, x.pred, xs.tail))
+      }
+    }
+    succ: slice(n.pred, Nat.pred(x), tail(xs))
+  }
+
+
+tail(xs: String): String
+  case xs {
+    nil : String.nil
+    cons: xs.tail
+  }
+
+
+ex_10: _
+  IO {
+    IO.print("is_upper")
+    IO.print(Bool.show(is_upper('a')))
+    IO.print(Bool.show(is_upper('A')))
+    IO.print(Bool.show(is_upper('0')))
+
+    IO.print("\nis_lower")
+    IO.print(Bool.show(is_lower('a')))
+    IO.print(Bool.show(is_lower('A')))
+    IO.print(Bool.show(is_lower('0')))
+
+    IO.print("\nis_digit")
+    IO.print(Bool.show(is_digit('a')))
+    IO.print(Bool.show(is_digit('A')))
+    IO.print(Bool.show(is_digit('0')))
+
+    IO.print("\nequal")
+    IO.print(Bool.show(equal('a', 'A')))
+    IO.print(Bool.show(equal('A', '0')))
+    IO.print(Bool.show(equal('0', '0')))
+
+    IO.print("\nto_digit")
+    IO.print(Nat.show(to_digit('0')))
+    IO.print(Nat.show(to_digit('1')))
+    IO.print(Nat.show(to_digit('4')))
+
+    IO.print("\nto_lower")
+    IO.print(U16.show(to_lower('A')))
+    IO.print(U16.show(to_lower('B')))
+    IO.print(U16.show(to_lower('Z')))
+
+    IO.print("\nto_upper")
+    IO.print(U16.show(to_upper('a')))
+    IO.print(U16.show(to_upper('b')))
+    IO.print(U16.show(to_upper('z')))
+
+    let a = "HI"
+    let b = "Hello"
+    let c = "text"
+
+    IO.print("\nconcat")
+    IO.print(concat(a,b))
+    IO.print(concat(b,c))
+
+    IO.print("\nmap")
+    IO.print(map(to_lower, a))
+
+    IO.print("\nstring_to_upper")
+    IO.print(string_to_upper(c))
+
+    IO.print("\nto_bits")
+    IO.print(Bits.show(to_bits(a)))
+    IO.print(Bits.show(to_bits(b)))
+    IO.print(Bits.show(to_bits(c)))
+
+    IO.print("\nstringequal")
+    IO.print(Bool.show(stringequal(a, a)))
+    IO.print(Bool.show(stringequal(a, b)))
+    IO.print(Bool.show(stringequal(b, c)))
+
+    IO.print("\nis_nat")
+    IO.print(Bool.show(is_nat(a)))
+    IO.print(Bool.show(is_nat(b)))
+    IO.print(Bool.show(is_nat("1234")))
+
+    IO.print("\nsplit")
+    IO.print(List.show!((s) s, split(b, "l")))
+    IO.print(List.show!((s) s, split(c, "e")))
+
+    IO.print("\ntake_while")
+    IO.print(take_while(is_upper, a))
+    IO.print(take_while(is_lower, b))
+    IO.print(take_while(equal('t'), c))
+
+    IO.print("\nfind")
+    IO.print(Nat.show(find(a, 'H')))
+    IO.print(Nat.show(find(b, 'l')))
+    IO.print(Nat.show(find(c, 'x')))
+
+    IO.print("\nfilter")
+    IO.print(filter(is_upper, a))
+    IO.print(filter(is_lower, b))
+    IO.print(filter(equal('t'), c))
+
+    IO.print("\nflatten")
+    IO.print(flatten([a,b,c]))
+
+    IO.print("\ndrop")
+    IO.print(drop(1, a))
+    IO.print(drop(2, b))
+    IO.print(drop(3, c))
+
+    IO.print("\ntake")
+    IO.print(take(1, a))
+    IO.print(take(2, b))
+    IO.print(take(3, c))
+
+    IO.print("\nslice")
+    IO.print(slice(1, 2, a))
+    IO.print(slice(2, 4, b))
+    IO.print(slice(1, 3, c))
+  }
