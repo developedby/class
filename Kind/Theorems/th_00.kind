@@ -19,14 +19,44 @@ Nat.sub.zero_left(a: Nat): Nat.sub(0, a) == 0
     succ: refl
   }!
 
+test(
+  a: Nat
+): Nat.div_mod.go(1, 0, Nat.succ(Nat.succ(a))) == Nat.div_mod.go(1, 1, Nat.sub(Nat.succ(Nat.succ(a)), 1))
+  refl
+
+test2(
+  a: Nat
+): Nat.div_mod.go(1, 0, Nat.succ(Nat.succ(a))) == Nat.div_mod.go(1, 1, Nat.succ(a))
+  refl
+
 // Não consegui
 Nat.mod.mod_one_equals_zero(a: Nat): (a % 1) == 0
+// divmod.go(1,0,a) == 0
+// if r > 1: divmod.go(1, 1, a-1)
   case a {
     zero: refl
-    succ: 
-      let e = Nat.mod.mod_one_equals_zero(a.pred)
-      ?a-18
+    succ:
+      case a.pred {
+        zero: refl
+        succ:
+          let e1 = refl :: Nat.div_mod.go(1, 0, a) == Nat.div_mod.go(1, 1, a-1)  //mod(1,0,a) == mod(1,1,a.pred)
+          // let e2 = Nat.div_mod.go.mod_no_div(1, 1, 0, a.pred) //mod(1,1,a) == mod(1,0,a)
+          // let e3 = Nat.mod.mod_one_equals_zero(a.pred) // mod(1,0,a.pred) == 0
+          ?a
+          // Equal.chain!!!!(e1, Equal.chain!!!!(e2, e3))
+      }!
   }!
+
+Nat.div_mod.go.mod_no_div(
+  n : Nat
+  d1: Nat
+  d2: Nat
+  r : Nat
+): Pair.snd<Nat, Nat>(Nat.div_mod.go(n, d1, r)) == Pair.snd<Nat, Nat>(Nat.div_mod.go(n, d2, r))
+  case Nat.lte(n, r) {
+    false: refl
+    true: ?n
+  }
 
 Nat.mod.zero_mod_equals_zero(a: Nat): (0 % Nat.succ(a)) == 0
   refl
@@ -192,11 +222,12 @@ th_00:_
   //Nat.sub.zero_left
 
   // porque fica travado?
-  //Nat.mod.mod_one_equals_zero
+  // Nat.mod.mod_one_equals_zero
+  test2
 
   //Nat.mod.zero_mod_equals_zero
   //Nat.mod.go_self
-  //Nat.mod.go_mod_one_equals_zero
+  // Nat.mod.go_mod_one_equals_zero
 
   // 0%0 crasha
   //Nat.mod.self
@@ -212,4 +243,4 @@ th_00:_
   //Nat.gcd.zero_left
   //Nat.lte.zero_right
   //Nat.add.succ_right
-  Nat.add.cancel_left
+  // Nat.add.cancel_left
