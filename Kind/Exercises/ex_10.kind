@@ -182,67 +182,6 @@ is_nat(xs: String): Bool
   }
 
 
-// Divides the elements of a String into a list, using a match you decide
-
-//split(b, "l") -> ["He", "", "o"]
-//split(c, "e") -> ["t", "xt"]
-split(xs: String, match: String): List<String>
-  split.go(xs, match, "", "", [])
-
-//  split "Hello" "ll"
-// Normalmente, só vai montando uma nova string
-//  split "ello"  "ll" "H" ""  []
-// Se começa com a mesma letra, separa ela (começo de um match)
-//  split "llo"   "ll" "He" ""   []
-//  split "lo"    "l"  "He" "l"  []
-//  split "o"     ""   "He" "ll" []
-// String de match vazia, coloca o construido até agora na lista de resultados
-// Traz a string de match de volta pra variavel
-//  split "o"   "ll" ""   "" ["He"]
-//  split ""    "ll" "o"  "" ["He"]
-// Acabou o input, retorna os resultados mais o finalzinho
-// Se der um match parcial, precisa remontar a string de match
-// e arrumar o que ta sendo construido
-//  split "Helper" "ll"
-//  split "per"    "l"  "He"   "l" []
-//  split "er"     "ll" "Help" ""  []
-
-// Extremely inefficient
-split.go(
-  xs: String
-  match: String
-  acc_text: String
-  acc_match: String
-  res: List<String>
-): List<String>
-  case xs {
-    nil: case acc_match {  // When input is over
-      nil: case acc_text {
-        nil : res  // Normal "clean" ending
-        cons: res ++ [acc_text]  // Was building next element, no match, put it in list
-      }
-      cons: res ++ [concat(acc_text, acc_match)]  // Was building match, rebuild string and put in list
-    }
-    cons: case match {  // When there is still input to process
-      nil : split.go(xs, acc_match, "", "", res ++ [acc_text])  // Match ok, add new element to list
-      cons:
-        if equal(match.head, xs.head) then  // Characters match, add one char to match
-          let crnt_match = concat(acc_match, String.cons(xs.head, ""))
-          split.go(xs.tail, match.tail, acc_text, crnt_match, res)
-        else case acc_match {
-          nil:  // No match so far, continue building next element
-            let crnt_text = concat(acc_text, String.cons(xs.head, ""))
-            split.go(xs.tail, match, crnt_text, acc_match, res)
-          cons:  // Match broke, go back
-            let crnt_xs = concat(acc_match.tail, xs)  // Move forward one char from before match start
-            let crnt_match = concat(acc_match, match)
-            let crnt_text = concat(acc_text, String.cons(acc_match.head, ""))
-            split.go(crnt_xs, crnt_match, crnt_text, "", res)
-        }
-    }
-  }
-
-
 // Takes any elements while the condition is matched.
 
 //take_while(is_upper,    a) -> "HI"
@@ -352,6 +291,70 @@ tail(xs: String): String
   }
 
 
+// Final Boss
+
+// Divides the elements of a String into a list, using a match you decide
+
+//split(b, "l")                                   -> ["He","" , "o"
+//split("Split example with matching space", " ") -> ["Split,example,with,matching,space]
+//split("You are awesome!", " ")                  -> ["You","are","awesome!"]
+split(xs: String, match: String): List<String>
+  split.go(xs, match, "", "", [])
+
+//  split "Hello" "ll"
+// Normalmente, só vai montando uma nova string
+//  split "ello"  "ll" "H" ""  []
+// Se começa com a mesma letra, separa ela (começo de um match)
+//  split "llo"   "ll" "He" ""   []
+//  split "lo"    "l"  "He" "l"  []
+//  split "o"     ""   "He" "ll" []
+// String de match vazia, coloca o construido até agora na lista de resultados
+// Traz a string de match de volta pra variavel
+//  split "o"   "ll" ""   "" ["He"]
+//  split ""    "ll" "o"  "" ["He"]
+// Acabou o input, retorna os resultados mais o finalzinho
+// Se der um match parcial, precisa remontar a string de match
+// e arrumar o que ta sendo construido
+//  split "Helper" "ll"
+//  split "per"    "l"  "He"   "l" []
+//  split "er"     "ll" "Help" ""  []
+
+// Extremely inefficient
+split.go(
+  xs: String
+  match: String
+  acc_text: String
+  acc_match: String
+  res: List<String>
+): List<String>
+  case xs {
+    nil: case acc_match {  // When input is over
+      nil: case acc_text {
+        nil : res  // Normal "clean" ending
+        cons: res ++ [acc_text]  // Was building next element, no match, put it in list
+      }
+      cons: res ++ [concat(acc_text, acc_match)]  // Was building match, rebuild string and put in list
+    }
+    cons: case match {  // When there is still input to process
+      nil : split.go(xs, acc_match, "", "", res ++ [acc_text])  // Match ok, add new element to list
+      cons:
+        if equal(match.head, xs.head) then  // Characters match, add one char to match
+          let crnt_match = concat(acc_match, String.cons(xs.head, ""))
+          split.go(xs.tail, match.tail, acc_text, crnt_match, res)
+        else case acc_match {
+          nil:  // No match so far, continue building next element
+            let crnt_text = concat(acc_text, String.cons(xs.head, ""))
+            split.go(xs.tail, match, crnt_text, acc_match, res)
+          cons:  // Match broke, go back
+            let crnt_xs = concat(acc_match.tail, xs)  // Move forward one char from before match start
+            let crnt_match = concat(acc_match, match)
+            let crnt_text = concat(acc_text, String.cons(acc_match.head, ""))
+            split.go(crnt_xs, crnt_match, crnt_text, "", res)
+        }
+    }
+  }
+
+
 ex_10: _
   IO {
     IO.print("is_upper")
@@ -418,10 +421,6 @@ ex_10: _
     IO.print(Bool.show(is_nat(b)))
     IO.print(Bool.show(is_nat("1234")))
 
-    IO.print("\nsplit")
-    IO.print(List.show!((s) s, split(b, "l")))
-    IO.print(List.show!((s) s, split(c, "e")))
-
     IO.print("\ntake_while")
     IO.print(take_while(is_upper, a))
     IO.print(take_while(is_lower, b))
@@ -454,4 +453,10 @@ ex_10: _
     IO.print(slice(1, 2, a))
     IO.print(slice(2, 4, b))
     IO.print(slice(1, 3, c))
+
+    IO.print("\nsplit")
+    IO.print(List.show!((s) s, split(b, "l")))
+    IO.print(List.show!((s) s, split(c, "e")))
+    IO.print(List.show!((s) s, split("Split example with matching space", " ")))
+    IO.print(List.show!((s) s, split("You are awesome!", " ")))
   }
