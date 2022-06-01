@@ -94,15 +94,10 @@ filter<A: Type>(f: A -> Bool, xs: List<A>): List<A>
 
 ex_09: _
   IO {
-    IO.print(List.show!(
-      Pair.show!!(Nat.show, String.show),
-      zip!!([1,2,3,4,5], ["1", "2", "3", "4"])
-    ))
-    IO.print(Maybe.show!(Nat.show, smallest([6,5,4,7,8,9])))
-    IO.print(List.show!(Nat.show, delete_smallest([6,5,4,7,8,9])))
-    IO.print(List.show!(Nat.show, sort_ascending([6,5,4,7,8,9])))
-    IO.print(Maybe.show!(Nat.show, get!(3, [1,2,3,4,5])))
-    IO.print(Maybe.show!(Nat.show, get!(12, [1,2,3,4,5])))
-    IO.print(Maybe.show!(Nat.show, get!(0, [])))
-    IO.print(List.show!(Nat.show, filter!(Nat.is_even, [1,2,3,4,5,6])))
+    Tests._09.zip(zip)
+    Tests._09.smallest(smallest)
+    Tests._09.delete_smallest(delete_smallest)
+    Tests._09.sort_ascending(sort_ascending)
+    Tests._09.get(get)
+    Tests._09.filter(filter)
   }

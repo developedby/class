@@ -29,13 +29,8 @@ map<A: Type, B: Type>(fn: A -> B, pair: Pair<A,A>): Pair<B,B>
 
 ex_05: _
   IO {
-    // {2, 1}
-    IO.print(Pair.show!!(Nat.show, Nat.show, swap!!({1, 2})))
-    // 1
-    IO.print(Nat.show(first!!({1, 2})))
-    // 2
-    IO.print(Nat.show(second!!({1, 2})))
-    // {2, 4}
-    IO.print(Pair.show!!(Nat.show, Nat.show,
-      map!!(Nat.mul(2), {1, 2})))
+    Tests._05.swap(swap)
+    Tests._05.first(first)
+    Tests._05.second(second)
+    Tests._05.map(map)
   }
