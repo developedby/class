@@ -177,8 +177,14 @@ stringequal(xs: String, ys: String): Bool
 //is_nat("1234") -> Bool.true
 is_nat(xs: String): Bool
   case xs {
-    nil : true
-    cons: is_digit(xs.head) && is_nat(xs.tail)
+    nil : false
+    cons: case xs.tail {
+      nil : is_digit(xs.head)  // Stop 1 before ""
+      cons: case is_digit(xs.head) {
+        false: false
+        true : is_nat(xs.tail)
+      }
+    }
   }
 
 
