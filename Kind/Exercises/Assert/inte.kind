@@ -1,30 +1,30 @@
 inc_t(a: Inte): Inte
   case a {
     neg: case a.num {
-      one: Inte.pos(Pos.zero)
-      pred: Inte.neg(a.num.succ)
+      one : Inte.nat(Nat.zero)
+      succ: Inte.neg(a.num.pred)
     }
-    pos: Inte.pos(Pos.succ(a.num))
+    nat: Inte.nat(Nat.succ(a.num))
   }
 
 dec_t(a: Inte): Inte
   case a {
-    neg: Inte.neg(Neg.pred(a.num))
-    pos: case a.num {
+    neg: Inte.neg(Neg.succ(a.num))
+    nat: case a.num {
       zero: Inte.neg(Neg.one)
-      succ: Inte.pos(a.num.pred)
+      succ: Inte.nat(a.num.pred)
     }
   }
 
 eql_t(a: Inte, b: Inte): Bool
   case a b {
-    pos pos: case a.num b.num {
+    nat nat: case a.num b.num {
       zero zero: true
       succ succ: eql_t(dec_t(a), dec_t(b))
     } default false
     neg neg: case a.num b.num {
-      one one: true
-      pred pred: eql_t(inc_t(a), inc_t(b))
+      one  one : true
+      succ succ: eql_t(inc_t(a), inc_t(b))
     } default false
   } default false
 
