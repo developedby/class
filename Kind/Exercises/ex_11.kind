@@ -9,34 +9,83 @@ type ListMap <A: Type> {
 // If the key is already present, its value is updated
 // If the key is not present, the value is added to the map
 set<A: Type>(key: Nat, value: A, lm: ListMap<A>): ListMap<A>
-  ?set
+  case lm {
+    empty: ListMap.cons<A>({key, value}, ListMap.empty<A>)
+    cons:
+      open lm.head
+      if lm.head.fst =? key then
+        ListMap.cons<A>({key, value}, lm.tail)
+      else
+        ListMap.cons<A>(lm.head, set<A>(key, value, lm.tail))
+  }
 
 // Returns a Value from a Key
 // If the key is not present, returns None
 get<A: Type>(key: Nat, lm: ListMap<A>): Maybe<A>
-  ?get
+  case lm {
+    empty: none
+    cons:
+      open lm.head
+      if lm.head.fst =? key then 
+        some(lm.head.snd)
+      else
+        get<A>(key, lm.tail)
+  }
 
 // Applies a function to a Value from a Key
 // Returns the same ListMap if the key is not present 
 mut<A: Type>(key: Nat, fn: A -> A, lm: ListMap<A>): ListMap<A>
-  ?mut
+  case lm {
+    empty: ListMap.empty<A>
+    cons:
+      open lm.head
+      if lm.head.fst =? key then
+        ListMap.cons<A>({key, fn(lm.head.snd)}, lm.tail)
+      else
+        ListMap.cons<A>(lm.head, mut<A>(key, fn, lm.tail))
+  }
 
 // Converts the ListMap to a String
 show<A: Type>(fn: A -> String, lm: ListMap<A>): String
-  ?show
+  "{" | show.go<A>(fn, lm, "}")
+
+show.go<A: Type>(fn: A -> String, lm: ListMap<A>, acc: String): String
+  case lm {
+    empty: acc
+    cons:
+      let elem = show_elem<A>(fn, lm.head)
+      show.go<A>(fn, lm.tail, elem | "," | acc)
+  }
+
+show_elem<A: Type>(fn: A -> String, elem: Pair<Nat, A>): String
+  open elem
+  Nat.show(elem.fst) | ": " | fn(elem.snd)
 
 // Checks if the ListMap has a key
 // Returns true if the key is present, false otherwise
 has<A:Type>(key: Nat, lm: ListMap<A>): Bool
-  ?has
+  Maybe.is_some<A>(get<A>(key, lm))
 
 // Removes all Elements that doesn't satisfy a condition
 filter<A: Type>(cond: A -> Bool, lm: ListMap<A>): ListMap<A>
-  ?filter
+  case lm {
+    empty: ListMap.empty<A>
+    cons:
+      open lm.head
+      if cond(lm.head.snd) then
+        ListMap.cons<A>(lm.head, filter<A>(cond, lm.tail))
+      else
+        filter<A>(cond, lm.tail)
+  }
 
 // Applies a function to all Values
 map<A: Type>(fn: A -> A, lm: ListMap<A>): ListMap<A>
-  ?map
+  case lm {
+    empty: ListMap.empty<A>
+    cons:
+      open lm.head
+      ListMap.cons<A>({lm.head.fst, fn(lm.head.snd)}, map<A>(fn, lm.tail))
+  }
 
 // Runs x gets and y sets
 stress_test(sets: Nat, gets: Nat): String
