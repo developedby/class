@@ -128,7 +128,7 @@ div.go(a: Nat, b: Nat, acc: Nat): Nat
         div.go(sub(a, b), b, Nat.succ(acc))
       else
         acc
-  } default Nat.zero
+  } default acc
 
 
 ex_04: IO<Unit>

@@ -81,12 +81,24 @@ inc(b: Bits): Bits
 //dec(c) -> Bits.i(Bits.i(Bits.o(Bits.i(Bits.e))))
 //dec(d) -> Bits.o(Bits.i(Bits.i(Bits.i(Bits.e))))
 dec(b: Bits): Bits
+  if is_zero(b) then
+    Bits.e
+  else
+    left_pad(trim(dec.go(trim(b))), 1)
+
+dec.go(b: Bits): Bits
   case b {
     e: Bits.e
     o: Bits.i(dec(b.pred))
     i: Bits.o(b.pred)
   }
 
+is_zero(b: Bits): Bool
+  case b {
+    e: true
+    o: is_zero(b.pred)
+    i: false
+  }
 
 //Concatenate two Bits structures
 
@@ -202,11 +214,43 @@ length(bs: Bits): Nat
   length_go(bs, 0)
 
 
+// Returns the index of the MSB, none if empty or zero
+msb_index(a: Bits): Maybe<Nat>
+  msb_index.go(a, 0, none)
+
+msb_index.go(a: Bits, idx: Nat, last: Maybe<Nat>): Maybe<Nat>
+  case a {
+    e: last
+    o: msb_index.go(a.pred, Nat.succ(idx), last)
+    i: msb_index.go(a.pred, Nat.succ(idx), some(idx))
+  }
+
+// Removes zeros to the left of the MSB
+trim(a: Bits): Bits
+  case msb_index(a) as msb {
+    none: Bits.e
+    some: take(Nat.succ(msb.value), a)
+  }
+
+zeros(len: Nat): Bits
+  case len {
+    zero: Bits.e
+    succ: Bits.o(zeros(len.pred))
+  }
+
+// Puts zeros after the MSB until it hits the desired length
+left_pad(a: Bits, len: Nat): Bits
+  let pad_size = len - length(a)
+  case pad_size {
+    zero: a  // Already long enough, no need to pad
+    succ: concat(a, zeros(pad_size))
+  }
+
 //Multiplies two Bits structures
 
 mul_go(a: Bits, b: Bits, acum: Bits): Bits
   case a {
-    e: acum
+    e: trim(acum)
     o: mul_go(a.pred, Bits.o(b), acum)
     i: mul_go(a.pred, Bits.o(b), add(b, acum))
   }
@@ -214,7 +258,13 @@ mul_go(a: Bits, b: Bits, acum: Bits): Bits
 //mul(a,b) -> Bits.o(Bits.i(Bits.o(Bits.o(Bits.i(Bits.e)))))
 //mul(b,c) -> Bits.o(Bits.o(Bits.o(Bits.i(Bits.o(Bits.o(Bits.i(Bits.e)))))))
 mul(a: Bits, b: Bits): Bits
-  mul_go(a, b, Bits.e)
+  case a b {
+    e e: Bits.e
+    e o: Bits.e
+    e i: Bits.e
+    o e: Bits.e
+    i e: Bits.e
+  } default left_pad(mul_go(a, b, Bits.e), 1)
 
 
 //Drops a n Number of Bits starting from from the least significative bit
