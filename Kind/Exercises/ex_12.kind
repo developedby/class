@@ -8,15 +8,35 @@ type BitsMap<A: Type> {
 // one
 
 set<A: Type>(key: Bits, val: A, map: BitsMap<A>): BitsMap<A>
-  ?set
-
+  let empty = BitsMap.new<A>
+  case key map {
+    e new:
+      BitsMap.tie<A>(some(val), empty, empty)
+    e tie:
+      BitsMap.tie<A>(some(val), map.lft, map.rgt)
+    o new:
+      BitsMap.tie<A>(none, set<A>(key.pred, val, empty), empty)
+    o tie:
+      BitsMap.tie<A>(map.val, set<A>(key.pred, val, map.lft), map.rgt)
+    i new:
+      BitsMap.tie<A>(none, empty, set<A>(key.pred, val, empty))
+    i tie:
+      BitsMap.tie<A>(map.val, map.lft, set<A>(key.pred, val, map.rgt))
+  }
 
 
 // Given a key, gets the value that correspond to the given key, 
 // If there it is no value for the key, returns Maybe.none<A>
 
-get<A: Type>(key: Bits, map:BitsMap<A>): Maybe<A>
-  ?get
+get<A: Type>(key: Bits, map: BitsMap<A>): Maybe<A>
+  case map {
+    new: none
+    tie: case key {
+      e: map.val
+      o: get<A>(key.pred, map.lft)
+      i: get<A>(key.pred, map.rgt)
+    }
+  }
 
 
 //Applies a function to a Value of the specific key and returns the same map but
@@ -24,7 +44,17 @@ get<A: Type>(key: Bits, map:BitsMap<A>): Maybe<A>
 //doesn't change the map
 
 mut<A: Type>(key: Bits, fn: A -> A, map: BitsMap<A>): BitsMap<A>
-  ?mut
+  case map {
+    new: BitsMap.new<A>
+    tie: case key {
+      e: case map.val {
+        none: BitsMap.tie<A>(none, map.lft, map.rgt)
+        some: BitsMap.tie<A>(some(fn(map.val.value)), map.lft, map.rgt)
+      }
+      o: BitsMap.tie<A>(map.val, mut<A>(key.pred, fn, map.lft), map.rgt)
+      i: BitsMap.tie<A>(map.val, map.lft, mut<A>(key.pred, fn, map.rgt))
+    }
+  }
 
 
 //Deletes a Value of the map within the given key, returns the same map if no
@@ -33,9 +63,17 @@ mut<A: Type>(key: Bits, fn: A -> A, map: BitsMap<A>): BitsMap<A>
 //Receives:
   // key of the type Bits
   // map of the type BitsMap<A>
-  // returns a Maybe<A>
+  // returns the modified map
 
-//del<A: Type>(...)
+del<A: Type>(key: Bits, map: BitsMap<A>): BitsMap<A>
+  case map {
+    new: BitsMap.new<A>
+    tie: case key {
+      e: BitsMap.tie<A>(none, map.lft, map.rgt)
+      o: BitsMap.tie<A>(map.val, del<A>(key.pred, map.lft), map.rgt)
+      i: BitsMap.tie<A>(map.val, map.lft, del<A>(key.pred, map.rgt))
+    }
+  }
 
 
 //Verifies if has any value for the given key, if has no value returns false, if
@@ -46,37 +84,92 @@ mut<A: Type>(key: Bits, fn: A -> A, map: BitsMap<A>): BitsMap<A>
   // map of the type BitsMap<A>
   // returns a Bool
 
-//has...
-
+has<A: Type>(key: Bits, map: BitsMap<A>): Bool
+  case map {
+    new: false
+    tie: case key {
+      e: Maybe.is_some<A>(map.val)
+      o: has<A>(key.pred, map.lft)
+      i: has<A>(key.pred, map.rgt)
+    } 
+  }
 
 
 //Verifies all values of the map and if they don't match the condition gets
 //removed, if the condition is matched, the value and the key are kept
 
-
 filter<A: Type>(cond: A -> Bool, map: BitsMap<A>): BitsMap<A>
-  ?filter
+  case map {
+    new: BitsMap.new<A>
+    tie: BitsMap.tie<A>(
+      Maybe.filter<A>(cond, map.val),
+      filter<A>(cond, map.lft),
+      filter<A>(cond, map.rgt)
+    )
+  }
 
+
+Maybe.filter<A: Type>(cond: A -> Bool, ma: Maybe<A>): Maybe<A>
+  case ma {
+    none: Maybe.none<A>
+    some:
+      if cond(ma.value) then
+        Maybe.some<A>(ma.value)
+      else
+        Maybe.none<A>
+  }
 
 
 //Applies a function to  all values of the map and returns the map modified 
 
-map<A: Type, B: Type>(fn: A -> B, map: BitsMap<A>): BitsMap<B>
-  ?map
-
+map<A: Type, B: Type>(fn: A -> B, bitsmap: BitsMap<A>): BitsMap<B>
+  case bitsmap {
+    new: BitsMap.new<B>
+    tie: BitsMap.tie<B>(
+      Maybe.map<A, B>(fn, bitsmap.val),
+      map<A, B>(fn, bitsmap.lft),
+      map<A, B>(fn, bitsmap.rgt)
+    )
+  }
 
 
 // Returns a list of keys with all Keys of the map
 
 key<A: Type>(map: BitsMap<A>): List<Bits>
-  ?key
+  key.go<A>(map, Bits.e)
 
-
+key.go<A: Type>(map: BitsMap<A>, key: Bits): List<Bits>
+  case map {
+    new: []
+    tie:
+      let tail = key.go!(map.lft, Bits.o(key)) ++ key.go!(map.rgt, Bits.i(key))
+      case map.val {
+        none: tail
+        some: key & tail
+    }
+  }
 
 //Unites two different maps into one, keeping its structure
 
 union<A: Type>(a: BitsMap<A>, b: BitsMap<A>): BitsMap<A>
-  ?union
+  case a b {
+    new new: BitsMap.new<A>
+    new tie: BitsMap.tie<A>(
+      b.val,
+      union<A>(BitsMap.new<A>, b.lft),
+      union<A>(BitsMap.new<A>, b.rgt)
+    )
+    tie new: BitsMap.tie<A>(
+      a.val,
+      union<A>(a.lft, BitsMap.new<A>),
+      union<A>(a.rgt, BitsMap.new<A>)
+    )
+    tie tie: BitsMap.tie<A>(
+      Maybe.or<A>(a.val, b.val),  // This will choose a over b
+      union<A>(a.lft, b.lft),
+      union<A>(a.rgt, b.rgt)
+    )
+  }
 
 
 //Stress Test for BitsMap
